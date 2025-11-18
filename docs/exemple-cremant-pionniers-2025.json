@@ -1,0 +1,174 @@
+{
+  "event": {
+    "slug": "cremant-pionniers-2025",
+    "section_id": "[UUID de la section Pionniers - à remplacer]",
+    "event_type": "PRODUCT_SALE",
+    "status": "ACTIVE",
+    "name": "Vente de Crémant d'Alsace 2025",
+    "description": "Soutenez les Pionniers d'Ecaussinnes en découvrant les crémants d'exception de la Maison Lissner. Qualité premium, prix attractif, livraison offerte.",
+    "start_date": "2025-01-15",
+    "end_date": "2025-03-31",
+
+    "hero_config": {
+      "title": "Crémant d'Alsace Maison Lissner",
+      "subtitle": "L'Excellence Alsacienne au Service des Pionniers",
+      "description": "Découvrez des crémants primés et médaillés, élaborés par une maison familiale depuis 1872. Qualité champagne, prix crémant.",
+      "banner_url": null,
+      "features": [
+        "Remise 10 pour le prix de 9",
+        "Livraison gratuite dès 10 bouteilles",
+        "Maison primée et médaillée",
+        "100% des bénéfices pour les scouts"
+      ],
+      "cta_text": "Commander mes crémants",
+      "show_deadline": true,
+      "show_stats": true,
+
+      "value_propositions": [
+        {
+          "icon": "quality",
+          "title": "Qualité Premium",
+          "description": "Crémants médaillés d'or et comparables aux grands champagnes. Élaborés selon la méthode traditionnelle par une maison reconnue."
+        },
+        {
+          "icon": "price",
+          "title": "Prix Imbattable",
+          "description": "Jusqu'à 30% moins cher qu'en grande surface, avec la remise 10 pour 9. Qualité champagne au prix du crémant."
+        },
+        {
+          "icon": "support",
+          "title": "Soutenez les Pionniers",
+          "description": "100% des bénéfices financent les activités et projets de la section Pionniers d'Ecaussinnes."
+        }
+      ],
+
+      "about_section": {
+        "enabled": true,
+        "title": "Pourquoi la Maison Lissner ?",
+        "content": "Après plusieurs années de vente de champagne, nous avons choisi de passer au crémant d'Alsace de la Maison Lissner. Pourquoi ce changement ?\n\nLa Maison Lissner, fondée en 1872, est une référence dans le monde de l'œnologie. Leurs crémants ont été récompensés par de nombreuses médailles d'or et sont régulièrement comparés favorablement à de grands champagnes lors de dégustations à l'aveugle.\n\nLa différence entre champagne et crémant ? Uniquement l'Appellation d'Origine Protégée (AOP). La méthode de production est strictement identique : méthode traditionnelle, seconde fermentation en bouteille, vieillissement sur lies. Seule la région de production diffère.\n\nRésultat : vous obtenez la même qualité qu'un champagne premium, pour un prix bien plus accessible. Et en achetant chez nous, vous soutenez directement les activités des Pionniers !",
+        "image_url": "https://placeholder-pour-photo-vignoble-lissner.jpg",
+        "link": {
+          "url": "https://lissner-alsace.com",
+          "label": "Découvrir la Maison Lissner"
+        }
+      },
+
+      "media": {
+        "type": "video",
+        "title": "Rencontre avec le vigneron",
+        "video_url": "https://youtube.com/embed/VOTRE_VIDEO_ID",
+        "video_thumbnail": "https://placeholder-pour-thumbnail-video.jpg"
+      },
+
+      "faq": [
+        {
+          "question": "Quelle est la différence entre champagne et crémant ?",
+          "answer": "La méthode de production est strictement identique (méthode traditionnelle). La seule différence est la région : le champagne vient de Champagne, le crémant d'autres régions françaises comme l'Alsace. La qualité peut être tout aussi exceptionnelle !"
+        },
+        {
+          "question": "Pourquoi ces crémants sont-ils aussi bons que du champagne ?",
+          "answer": "La Maison Lissner a remporté de nombreuses médailles d'or et ses crémants sont régulièrement classés au même niveau que de grands champagnes lors de dégustations à l'aveugle. Ils utilisent les mêmes techniques, le même soin, et des raisins d'exception."
+        },
+        {
+          "question": "Comment fonctionne la remise \"10 pour le prix de 9\" ?",
+          "answer": "Pour chaque tranche de 10 bouteilles commandées, vous ne payez que 9 bouteilles. Par exemple : 20 bouteilles = vous en payez 18, économie de 2 bouteilles !"
+        },
+        {
+          "question": "Comment récupérer ma commande ?",
+          "answer": "Deux options : retrait au local des scouts selon les créneaux proposés, ou livraison gratuite à domicile pour toute commande de 10 bouteilles ou plus."
+        },
+        {
+          "question": "Quels sont les modes de paiement ?",
+          "answer": "Virement bancaire (recommandé) ou paiement sur place lors du retrait (espèces ou Bancontact). Les instructions de paiement vous seront envoyées par email après votre commande."
+        },
+        {
+          "question": "À quoi servent les bénéfices de cette vente ?",
+          "answer": "100% des bénéfices financent les activités de la section Pionniers : camps, sorties, matériel, projets solidaires. Chaque bouteille achetée soutient directement nos jeunes !"
+        }
+      ],
+
+      "social_links": {
+        "facebook_event": "https://facebook.com/events/VOTRE_EVENT_ID",
+        "instagram": "@pionniers_ecaussinnes"
+      }
+    },
+
+    "config": {
+      "delivery_enabled": true,
+      "delivery_min_bottles": 10,
+      "delivery_fee_cents": 0,
+      "discount_10for9": true,
+      "pickup_address": "Local des Scouts, Rue de la Place 12, 7190 Ecaussinnes",
+      "allowed_zip_codes": ["7190", "7191", "7120", "7110", "1400", "1480"],
+      "order_code_prefix": "CRE"
+    }
+  },
+
+  "products": [
+    {
+      "name": "Crémant d'Alsace Brut",
+      "description": "Élégant et frais, notes d'agrumes et de fleurs blanches. Parfait à l'apéritif. Médaille d'Or.",
+      "price_cents": 1200,
+      "product_type": "ITEM",
+      "stock": null,
+      "is_active": true,
+      "sort_order": 1
+    },
+    {
+      "name": "Crémant d'Alsace Rosé",
+      "description": "Fruité et délicat, arômes de fruits rouges. Idéal pour les desserts et occasions festives.",
+      "price_cents": 1300,
+      "product_type": "ITEM",
+      "stock": null,
+      "is_active": true,
+      "sort_order": 2
+    },
+    {
+      "name": "Crémant d'Alsace Prestige",
+      "description": "Cuvée premium, vieilli 36 mois. Complexe et raffiné, pour les grandes occasions. Médaille d'Or Concours Général Agricole.",
+      "price_cents": 1600,
+      "product_type": "ITEM",
+      "stock": null,
+      "is_active": true,
+      "sort_order": 3
+    }
+  ],
+
+  "slots": [
+    {
+      "date": "2025-03-22",
+      "start_time": "10:00",
+      "end_time": "12:00",
+      "capacity": 30,
+      "location": "Local des Scouts, Ecaussinnes"
+    },
+    {
+      "date": "2025-03-22",
+      "start_time": "14:00",
+      "end_time": "17:00",
+      "capacity": 40,
+      "location": "Local des Scouts, Ecaussinnes"
+    },
+    {
+      "date": "2025-03-29",
+      "start_time": "10:00",
+      "end_time": "12:00",
+      "capacity": 30,
+      "location": "Local des Scouts, Ecaussinnes"
+    }
+  ],
+
+  "notes": {
+    "instructions": "Ce fichier JSON est un exemple complet pour créer l'événement Crémant Pionniers 2025.",
+    "todo": [
+      "1. Remplacer 'section_id' par l'UUID réel de la section Pionniers",
+      "2. Ajouter l'URL de la vraie vidéo du salon du vin dans 'media.video_url'",
+      "3. Ajouter les vraies URLs des photos (vignoble, bouteilles) dans 'about_section.image_url'",
+      "4. Mettre à jour l'URL de l'événement Facebook dans 'social_links.facebook_event'",
+      "5. Ajuster les dates de start_date, end_date et slots selon le calendrier réel",
+      "6. Ajuster les prix (price_cents) si nécessaire",
+      "7. Vérifier les codes postaux autorisés pour la livraison"
+    ],
+    "comment": "La section 'About Maison Lissner' explique bien pourquoi le crémant est aussi bon que le champagne, ce qui devrait rassurer les clients habitués au champagne des années précédentes."
+  }
+}
