@@ -90,7 +90,7 @@ export default function OrderDetailsPage() {
         setOrder(data.order)
       } catch (err) {
         console.error('Error fetching order:', err)
-        setError('Erreur lors de la récupération de la commande')
+        setError('Erreur lors de la rÃ©cupÃ©ration de la commande')
       } finally {
         setLoading(false)
       }
@@ -117,10 +117,10 @@ export default function OrderDetailsPage() {
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Commande introuvable</h1>
           <p className="text-gray-600 mb-6">
-            {error || 'Nous n\'avons pas pu trouver cette commande. Vérifiez le code de commande.'}
+            {error || 'Nous n\'avons pas pu trouver cette commande. VÃ©rifiez le code de commande.'}
           </p>
           <Button onClick={() => router.push('/')} className="bg-amber-600 hover:bg-amber-700">
-            Retour à l'accueil
+            Retour Ã  l'accueil
           </Button>
         </div>
       </div>
@@ -144,11 +144,11 @@ export default function OrderDetailsPage() {
         <div className="max-w-4xl mx-auto px-4">
           <Link href={`/event/${order.event.slug}`} className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4">
             <ArrowLeft className="w-4 h-4" />
-            Retour à l'événement
+            Retour Ã  l'Ã©vÃ©nement
           </Link>
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Commande confirmée</h1>
+              <h1 className="text-3xl font-bold mb-2">Commande confirmÃ©e</h1>
               <p className="text-amber-100">
                 Merci pour votre commande {order.customer_name} !
               </p>
@@ -167,9 +167,9 @@ export default function OrderDetailsPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">Détails de la commande</h2>
+                  <h2 className="text-xl font-bold text-gray-900">DÃ©tails de la commande</h2>
                   <p className="text-sm text-gray-600 mt-1">
-                    Commande passée le {formatDate(order.created_at)}
+                    Commande passÃ©e le {formatDate(order.created_at)}
                   </p>
                 </div>
                 <div className="text-right">
@@ -191,7 +191,7 @@ export default function OrderDetailsPage() {
 
               {/* Items list */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 mb-3">Articles commandés</h3>
+                <h3 className="font-semibold text-gray-900 mb-3">Articles commandÃ©s</h3>
                 {order.items.map((item) => (
                   <div key={item.id} className="flex items-center justify-between py-3 border-b border-gray-200 last:border-0">
                     <div className="flex-1">
@@ -200,11 +200,11 @@ export default function OrderDetailsPage() {
                         <div className="text-sm text-gray-600 mt-1">{item.product.description}</div>
                       )}
                       <div className="text-sm text-gray-500 mt-1">
-                        {item.quantity} × {(item.unit_price_cents / 100).toFixed(2)} ¬
+                        {item.quantity} Ã— {(item.unit_price_cents / 100).toFixed(2)} â‚¬
                       </div>
                     </div>
                     <div className="font-semibold text-gray-900 ml-4">
-                      {(item.total_price_cents / 100).toFixed(2)} ¬
+                      {(item.total_price_cents / 100).toFixed(2)} â‚¬
                     </div>
                   </div>
                 ))}
@@ -214,7 +214,7 @@ export default function OrderDetailsPage() {
               <div className="mt-6 pt-4 border-t border-gray-200 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Sous-total</span>
-                  <span className="text-gray-900">{(order.subtotal_cents / 100).toFixed(2)} ¬</span>
+                  <span className="text-gray-900">{(order.subtotal_cents / 100).toFixed(2)} â‚¬</span>
                 </div>
 
                 {order.delivery_method === 'DELIVERY' && order.delivery_fee_cents > 0 && (
@@ -223,7 +223,7 @@ export default function OrderDetailsPage() {
                       <Truck className="w-4 h-4" />
                       Frais de livraison
                     </span>
-                    <span className="text-gray-900">{(order.delivery_fee_cents / 100).toFixed(2)} ¬</span>
+                    <span className="text-gray-900">{(order.delivery_fee_cents / 100).toFixed(2)} â‚¬</span>
                   </div>
                 )}
 
@@ -232,13 +232,13 @@ export default function OrderDetailsPage() {
                     <span className="flex items-center gap-1">
                       Code promo ({order.promo_code.code})
                     </span>
-                    <span>-{(order.promo_code.discount_cents / 100).toFixed(2)} ¬</span>
+                    <span>-{(order.promo_code.discount_cents / 100).toFixed(2)} â‚¬</span>
                   </div>
                 )}
 
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
                   <span className="text-gray-900">Total</span>
-                  <span className="text-amber-600">{(order.total_cents / 100).toFixed(2)} ¬</span>
+                  <span className="text-amber-600">{(order.total_cents / 100).toFixed(2)} â‚¬</span>
                 </div>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function OrderDetailsPage() {
                   <p className="text-gray-600">{order.delivery_zip} {order.delivery_city}</p>
                   {order.delivery_slot && (
                     <p className="text-sm text-gray-500 mt-2">
-                      Créneau: {order.delivery_slot}
+                      CrÃ©neau: {order.delivery_slot}
                     </p>
                   )}
                 </div>
@@ -274,7 +274,7 @@ export default function OrderDetailsPage() {
                 <div>
                   {order.delivery_slot && (
                     <div>
-                      <p className="text-gray-900 font-medium">Créneau de retrait</p>
+                      <p className="text-gray-900 font-medium">CrÃ©neau de retrait</p>
                       <p className="text-gray-600 mt-1">{order.delivery_slot}</p>
                     </div>
                   )}
@@ -296,7 +296,7 @@ export default function OrderDetailsPage() {
             <div className="bg-white rounded-xl shadow-md p-6">
               <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <User className="w-5 h-5 text-amber-600" />
-                Vos coordonnées
+                Vos coordonnÃ©es
               </h3>
               <div className="space-y-3 text-sm">
                 <div>
@@ -308,7 +308,7 @@ export default function OrderDetailsPage() {
                   <div className="font-medium text-gray-900">{order.customer_email}</div>
                 </div>
                 <div>
-                  <div className="text-gray-600">Téléphone</div>
+                  <div className="text-gray-600">TÃ©lÃ©phone</div>
                   <div className="font-medium text-gray-900">{order.customer_phone}</div>
                 </div>
               </div>
@@ -328,7 +328,7 @@ export default function OrderDetailsPage() {
                     <span className="font-medium">IBAN:</span> {order.event.section.iban}
                   </div>
                   <div>
-                    <span className="font-medium">Bénéficiaire:</span> {order.event.section.iban_name}
+                    <span className="font-medium">BÃ©nÃ©ficiaire:</span> {order.event.section.iban_name}
                   </div>
                   <div>
                     <span className="font-medium">Communication:</span> {order.order_code}

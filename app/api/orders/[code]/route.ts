@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server'
 
 /**
  * GET /api/orders/[code]
- * Récupère une commande par son code unique
+ * RÃ©cupÃ¨re une commande par son code unique
  */
 export async function GET(
   request: NextRequest,
@@ -21,7 +21,7 @@ export async function GET(
 
     const supabase = createServerClient()
 
-    // Récupérer la commande avec tous les détails
+    // RÃ©cupÃ©rer la commande avec tous les dÃ©tails
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select(`

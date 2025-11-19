@@ -10,7 +10,7 @@ import { z } from 'zod'
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const isAuthenticated = await isAdminAuthenticated()
@@ -18,7 +18,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const validatedData = cuveeSchema.parse(body)
 
@@ -66,7 +66,7 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const isAuthenticated = await isAdminAuthenticated()
@@ -74,7 +74,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const supabase = createServerClient()
 
     // Vérifier si la cuvée est utilisée dans des commandes
