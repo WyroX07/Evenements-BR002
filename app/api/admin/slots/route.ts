@@ -15,7 +15,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: slots, error } = await supabase
       .from('slots')
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = slotSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: slot, error } = await supabase
       .from('slots')

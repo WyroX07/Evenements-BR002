@@ -22,7 +22,7 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = cuveeSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: cuvee, error } = await supabase
       .from('cuvees')
@@ -75,7 +75,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier si la cuvée est utilisée dans des commandes
     const { count } = await supabase

@@ -15,7 +15,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: cuvees, error } = await supabase
       .from('cuvees')
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = cuveeSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: cuvee, error } = await supabase
       .from('cuvees')

@@ -7,7 +7,7 @@ import { createServerClient } from '@/lib/supabase/server'
  */
 export async function GET() {
   try {
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: sections, error } = await supabase
       .from('sections')

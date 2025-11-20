@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Rechercher le code promo (insensible à la casse)
     const { data: promoCode, error } = await supabase

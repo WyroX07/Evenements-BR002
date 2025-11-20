@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: promoCodes, error } = await supabase
       .from('promo_codes')
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier si le code existe déjà
     const { data: existing } = await supabase

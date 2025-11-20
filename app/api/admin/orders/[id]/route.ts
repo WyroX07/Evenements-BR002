@@ -20,7 +20,7 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Déterminer le type de mise à jour
     if (body.status) {

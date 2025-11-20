@@ -64,7 +64,7 @@ export async function GET(
     }
 
     const { id } = await params
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: event, error: eventError } = await supabase
       .from('events')
@@ -115,7 +115,7 @@ export async function GET(
       .select('status')
       .eq('event_id', id)
 
-    const statusCounts = (ordersByStatus || []).reduce((acc, order) => {
+    const statusCounts = (ordersByStatus || []).reduce((acc: Record<string, number>, order: any) => {
       acc[order.status] = (acc[order.status] || 0) + 1
       return acc
     }, {} as Record<string, number>)
@@ -154,7 +154,7 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = updateEventSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier que l'événement existe
     const { data: existingEvent, error: existingError } = await supabase
@@ -259,7 +259,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier que l'événement existe
     const { data: event, error: eventError } = await supabase

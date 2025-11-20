@@ -457,7 +457,7 @@ export default function AdminDashboardPage() {
                   start_date: editingEvent.start_date,
                   end_date: editingEvent.end_date,
                   section_id: editingEvent.section.id,
-                  status: editingEvent.status,
+                  status: editingEvent.status === 'CLOSED' ? 'ARCHIVED' : editingEvent.status,
                   hero_image_url: '',
                   hero_title: editingEvent.name,
                   hero_subtitle: '',

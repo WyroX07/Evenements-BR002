@@ -19,7 +19,7 @@ export async function GET(
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Récupérer la commande avec tous les détails
     const { data: order, error: orderError } = await supabase

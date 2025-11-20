@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = eventSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier que la section existe
     const { data: section, error: sectionError } = await supabase

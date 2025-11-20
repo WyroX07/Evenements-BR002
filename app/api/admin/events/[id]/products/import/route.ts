@@ -148,7 +148,7 @@ function validateProductRow(row: any, lineNumber: number): ValidationResult {
   // Parse des allergènes (format: "gluten,lactose,soja")
   let allergens: string[] = []
   if (normalizedRow.allergens && typeof normalizedRow.allergens === 'string') {
-    allergens = normalizedRow.allergens.split(',').map(a => a.trim()).filter(a => a.length > 0)
+    allergens = normalizedRow.allergens.split(',').map((a: string) => a.trim()).filter((a: string) => a.length > 0)
   }
 
   // Parse des booleans
@@ -256,7 +256,7 @@ export async function POST(
     }
 
     // Vérifier que l'événement existe
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
     const { data: event, error: eventError } = await supabase
       .from('events')
       .select('id')

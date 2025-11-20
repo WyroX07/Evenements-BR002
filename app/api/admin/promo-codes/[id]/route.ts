@@ -33,7 +33,7 @@ export async function PATCH(
     const body = await request.json()
     const { code, discountCents, description, isActive } = body
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const updateData: any = {}
 
@@ -96,7 +96,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { error } = await supabase
       .from('promo_codes')

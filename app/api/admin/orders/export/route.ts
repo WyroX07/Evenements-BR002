@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
     const deliveryType = searchParams.get('delivery_type')
     const slotId = searchParams.get('slot_id')
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     let query = supabase
       .from('orders')
@@ -156,13 +156,13 @@ export async function GET(request: NextRequest) {
     // Filtre par section (via event)
     if (sectionId) {
       filteredOrders = filteredOrders.filter(
-        (order) => order.event?.section?.id === sectionId
+        (order: any) => order.event?.section?.id === sectionId
       )
     }
 
     // Récupérer les items pour chaque commande
     const ordersWithItems = await Promise.all(
-      filteredOrders.map(async (order) => {
+      filteredOrders.map(async (order: any) => {
         const { data: items } = await supabase
           .from('order_items')
           .select(`

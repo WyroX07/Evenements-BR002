@@ -22,7 +22,7 @@ export async function PATCH(
     const body = await request.json()
     const validatedData = slotSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     const { data: slot, error } = await supabase
       .from('slots')
@@ -73,7 +73,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier si le créneau est utilisé dans des commandes
     const { count } = await supabase

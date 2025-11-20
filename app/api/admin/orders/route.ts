@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const slotId = searchParams.get('slot_id')
     const search = searchParams.get('search') // Recherche par nom/email/code
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     let query = supabase
       .from('orders')
@@ -166,7 +166,7 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json()
     const validatedData = updateOrderSchema.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier que la commande existe
     const { data: existingOrder, error: existingError } = await supabase
@@ -245,7 +245,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Vérifier que la commande existe
     const { data: order, error: orderError } = await supabase

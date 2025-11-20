@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     const validatedData = orderSchemaV2.parse(body)
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // 1. Récupérer l'événement avec sa section
     const { data: event, error: eventError } = await supabase

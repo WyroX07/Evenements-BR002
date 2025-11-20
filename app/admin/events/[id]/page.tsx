@@ -820,7 +820,9 @@ export default function EventDetailPage() {
                                 <input
                                   type="checkbox"
                                   checked={allDateSelected}
-                                  ref={(el) => el && (el.indeterminate = someSelected)}
+                                  ref={(el) => {
+                                    if (el) el.indeterminate = someSelected
+                                  }}
                                   onChange={() => toggleDateSelection(date, dateSlots)}
                                   className="w-4 h-4 text-blue-600 rounded"
                                   title="Sélectionner tous les créneaux de cette date"

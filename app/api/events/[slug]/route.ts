@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { slug } = await params
 
-    const supabase = createServerClient()
+    const supabase = createServerClient() as any
 
     // Récupérer l'événement avec sa section
     const { data: event, error: eventError } = await supabase
