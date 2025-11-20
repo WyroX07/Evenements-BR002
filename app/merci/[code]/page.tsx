@@ -140,9 +140,10 @@ function getDeliveryTypeLabel(type: string): string {
 export default async function ConfirmationPage({
   params,
 }: {
-  params: { code: string }
+  params: Promise<{ code: string }>
 }) {
-  const data = await getOrder(params.code)
+  const { code } = await params
+  const data = await getOrder(code)
 
   if (!data) {
     notFound()
