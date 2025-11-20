@@ -90,10 +90,10 @@ function generateICS(
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params
+    const { code } = await params
 
     // Récupérer la commande avec son créneau
     const { data: order, error: orderError } = await supabase

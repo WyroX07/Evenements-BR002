@@ -56,14 +56,14 @@ const updateProductSchema = productSchema.partial()
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id: eventId } = params
+    const { id: eventId } = await params
     const supabase = createServerClient() as any
 
     // Vérifier que l'événement existe
@@ -108,14 +108,14 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id: eventId } = params
+    const { id: eventId } = await params
     const body = await request.json()
     const validatedData = productSchema.parse(body)
 
@@ -210,13 +210,14 @@ export async function POST(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { searchParams } = new URL(request.url)
     const productId = searchParams.get('productId')
 
@@ -237,7 +238,7 @@ export async function PATCH(
       .from('products')
       .select('*, event:events(name)')
       .eq('id', productId)
-      .eq('event_id', params.id)
+      .eq('event_id', resolvedParams.id)
       .single()
 
     if (existingError || !existingProduct) {
@@ -265,7 +266,7 @@ export async function PATCH(
 
     // Log audit
     await supabase.from('audit_logs').insert({
-      event_id: params.id,
+      event_id: resolvedParams.id,
       action: 'PRODUCT_UPDATED',
       meta: {
         product_name: product.name,
@@ -293,13 +294,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { searchParams } = new URL(request.url)
     const productId = searchParams.get('productId')
 
@@ -317,7 +319,7 @@ export async function DELETE(
       .from('products')
       .select('name')
       .eq('id', productId)
-      .eq('event_id', params.id)
+      .eq('event_id', resolvedParams.id)
       .single()
 
     if (productError || !product) {
@@ -356,7 +358,7 @@ export async function DELETE(
 
     // Log audit
     await supabase.from('audit_logs').insert({
-      event_id: params.id,
+      event_id: resolvedParams.id,
       action: 'PRODUCT_DELETED',
       meta: { product_name: product.name },
     })

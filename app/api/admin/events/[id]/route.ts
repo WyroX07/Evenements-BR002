@@ -56,14 +56,14 @@ const updateEventSchema = z.object({
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const supabase = createServerClient()
 
     const { data: event, error: eventError } = await supabase
@@ -143,14 +143,14 @@ export async function GET(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const validatedData = updateEventSchema.parse(body)
 
@@ -251,14 +251,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const supabase = createServerClient()
 
     // Vérifier que l'événement existe

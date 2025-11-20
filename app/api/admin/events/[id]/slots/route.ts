@@ -31,14 +31,14 @@ const updateSlotSchema = slotSchema.partial()
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id: eventId } = params
+    const { id: eventId } = await params
     const supabase = createServerClient() as any
 
     // Vérifier que l'événement existe
@@ -101,14 +101,14 @@ export async function GET(
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
-    const { id: eventId } = params
+    const { id: eventId } = await params
     const body = await request.json()
     const validatedData = slotSchema.parse(body)
 
@@ -188,13 +188,14 @@ export async function POST(
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { searchParams } = new URL(request.url)
     const slotId = searchParams.get('slotId')
 
@@ -215,7 +216,7 @@ export async function PATCH(
       .from('slots')
       .select('*')
       .eq('id', slotId)
-      .eq('event_id', params.id)
+      .eq('event_id', resolvedParams.id)
       .single()
 
     if (existingError || !existingSlot) {
@@ -272,7 +273,7 @@ export async function PATCH(
 
     // Log audit
     await supabase.from('audit_logs').insert({
-      event_id: params.id,
+      event_id: resolvedParams.id,
       action: 'SLOT_UPDATED',
       meta: {
         slot_date: slot.date,
@@ -300,13 +301,14 @@ export async function PATCH(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     if (!await checkAdminAuth()) {
       return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { searchParams } = new URL(request.url)
     const slotId = searchParams.get('slotId')
 
@@ -324,7 +326,7 @@ export async function DELETE(
       .from('slots')
       .select('date, start_time, end_time')
       .eq('id', slotId)
-      .eq('event_id', params.id)
+      .eq('event_id', resolvedParams.id)
       .single()
 
     if (slotError || !slot) {
@@ -363,7 +365,7 @@ export async function DELETE(
 
     // Log audit
     await supabase.from('audit_logs').insert({
-      event_id: params.id,
+      event_id: resolvedParams.id,
       action: 'SLOT_DELETED',
       meta: {
         slot_date: slot.date,
