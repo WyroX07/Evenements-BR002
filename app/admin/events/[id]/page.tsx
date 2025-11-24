@@ -53,9 +53,27 @@ interface Product {
   stock: number | null
   is_active: boolean
   sort_order: number
+  image_url?: string
   allergens?: string[]
   is_vegetarian?: boolean
   is_vegan?: boolean
+  // Wine-specific fields
+  is_wine?: boolean
+  vintage?: string
+  color?: string
+  aromas?: string
+  balance?: string
+  food_pairings?: string
+  conservation?: string
+  grape_variety?: string
+  wine_type?: string
+  appellation?: string
+  special_mentions?: string[]
+  residual_sugar_gl?: number | null
+  limited_stock?: boolean
+  highlight_badge?: string
+  producer?: string
+  origin?: string
 }
 
 interface Slot {
@@ -1097,10 +1115,27 @@ export default function EventDetailPage() {
             stock: editingProduct.stock,
             is_active: editingProduct.is_active,
             sort_order: editingProduct.sort_order,
-            image_url: '',
+            image_url: editingProduct.image_url || '',
             allergens: editingProduct.allergens || [],
             is_vegetarian: editingProduct.is_vegetarian || false,
             is_vegan: editingProduct.is_vegan || false,
+            // Wine-specific fields
+            is_wine: editingProduct.is_wine || false,
+            vintage: editingProduct.vintage || '',
+            color: editingProduct.color || '',
+            aromas: editingProduct.aromas || '',
+            balance: editingProduct.balance || '',
+            food_pairings: editingProduct.food_pairings || '',
+            conservation: editingProduct.conservation || '',
+            grape_variety: editingProduct.grape_variety || '',
+            wine_type: editingProduct.wine_type || '',
+            appellation: editingProduct.appellation || '',
+            special_mentions: editingProduct.special_mentions || [],
+            residual_sugar_gl: editingProduct.residual_sugar_gl || null,
+            limited_stock: editingProduct.limited_stock || false,
+            highlight_badge: editingProduct.highlight_badge || '',
+            producer: editingProduct.producer || '',
+            origin: editingProduct.origin || '',
           } : undefined}
           onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
           onCancel={closeProductModal}

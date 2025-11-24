@@ -361,6 +361,49 @@ export default function CommanderPage() {
   const canGoBack = currentStepIndex > 0
   const isLastStep = currentStepIndex === allSteps.length - 1
 
+  // Check if current step is valid (can proceed to next)
+  const isCurrentStepValid = (): boolean => {
+    const step = allSteps[currentStepIndex]
+
+    switch (step.id) {
+      case 'products':
+        return Object.keys(cart).length > 0
+
+      case 'delivery':
+        return !!deliveryType
+
+      case 'slot':
+        return !!watchedSlotId
+
+      case 'contact':
+        const name = watch('customerName')
+        const email = watch('email')
+        const phone = watch('phone')
+
+        if (!name || name.length < 2 || !email || !email.includes('@') || !phone || phone.length < 9) {
+          return false
+        }
+
+        // Validate delivery address if needed
+        if (deliveryType === 'DELIVERY') {
+          const address = watch('address')
+          const city = watch('city')
+          const zip = watch('zip')
+          return !!(address && city && zip)
+        }
+        return true
+
+      case 'payment':
+        return !!watch('paymentMethod')
+
+      case 'confirm':
+        return !!watch('rgpdConsent')
+
+      default:
+        return true
+    }
+  }
+
   // Fetch event data
   useEffect(() => {
     async function fetchEvent() {
@@ -466,8 +509,11 @@ export default function CommanderPage() {
       const totalQty = Object.values(cart).reduce((sum, qty) => sum + qty, 0)
       const freeBottles = Math.floor(totalQty / 10)
       if (freeBottles > 0 && subtotal > 0) {
+        // Calculate discount based on average price and round to nearest 100 cents (1 euro)
         const avgPrice = subtotal / totalQty
-        discount = Math.round(freeBottles * avgPrice)
+        const rawDiscount = freeBottles * avgPrice
+        // Round to nearest euro (100 cents)
+        discount = Math.round(rawDiscount / 100) * 100
       }
     }
 
@@ -565,21 +611,15 @@ export default function CommanderPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50">
-      {/* Header */}
-      <header className="bg-white border-b border-amber-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href={`/event/${slug}`}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Retour à l'événement
-          </Link>
-        </div>
-      </header>
-
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
+          <Link
+            href={`/event/${slug}`}
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-amber-700 transition-colors mb-6 group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">Retour à l'événement</span>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">{event.name}</h1>
           <p className="mt-2 text-gray-600">
             Complétez votre commande en quelques étapes
@@ -669,35 +709,59 @@ export default function CommanderPage() {
                           )}
                         </div>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col gap-2">
                           {qty === 0 ? (
-                            <Button
-                              type="button"
-                              onClick={() => addToCart(product.id)}
-                              size="sm"
-                            >
-                              Ajouter
-                            </Button>
-                          ) : (
-                            <div className="flex items-center gap-3">
-                              <button
-                                type="button"
-                                onClick={() => removeFromCart(product.id)}
-                                className="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-lg transition-colors"
-                              >
-                                -
-                              </button>
-                              <span className="w-12 text-center font-bold text-lg">
-                                {qty}
-                              </span>
-                              <button
+                            <>
+                              <Button
                                 type="button"
                                 onClick={() => addToCart(product.id)}
-                                className="w-10 h-10 rounded-full bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center font-bold text-lg transition-colors"
+                                size="sm"
                               >
-                                +
-                              </button>
-                            </div>
+                                Ajouter
+                              </Button>
+                              {product.product_type === 'ITEM' && (
+                                <Button
+                                  type="button"
+                                  onClick={() => updateQuantity(product.id, 6)}
+                                  size="sm"
+                                  className="text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white"
+                                >
+                                  🍾 Caisse (6 btl)
+                                </Button>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-3">
+                                <button
+                                  type="button"
+                                  onClick={() => removeFromCart(product.id)}
+                                  className="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-lg transition-colors"
+                                >
+                                  -
+                                </button>
+                                <span className="w-12 text-center font-bold text-lg">
+                                  {qty}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => addToCart(product.id)}
+                                  className="w-10 h-10 rounded-full bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center font-bold text-lg transition-colors"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              {product.product_type === 'ITEM' && (
+                                <Button
+                                  type="button"
+                                  onClick={() => updateQuantity(product.id, qty + 6)}
+                                  size="sm"
+                                  className="text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white"
+                                >
+                                  + Caisse (6 btl)
+                                </Button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
@@ -707,7 +771,7 @@ export default function CommanderPage() {
 
                 {event.config.discount_10for9 && (
                   <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 text-green-700 rounded-lg text-sm font-medium">
-                    🎉 Remise spéciale : 10 bouteilles pour le prix de 9 !
+                    Remise spéciale : 10 bouteilles pour le prix de 9 !
                   </div>
                 )}
 
@@ -761,7 +825,7 @@ export default function CommanderPage() {
                         <p className="font-bold text-lg text-gray-900">Retrait sur place</p>
                         {event.config.pickup_address && (
                           <p className="text-sm text-gray-600 mt-1">
-                            📍 {event.config.pickup_address}
+                            {event.config.pickup_address}
                           </p>
                         )}
                       </div>
@@ -778,9 +842,6 @@ export default function CommanderPage() {
                       />
                       <div className="flex-1">
                         <p className="font-bold text-lg text-gray-900">Livraison à domicile</p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Minimum {event.config.delivery_min_bottles} articles
-                        </p>
                         {deliveryFee > 0 && (
                           <p className="text-sm text-amber-600 font-medium mt-1">
                             Frais de livraison: {(deliveryFee / 100).toFixed(2)} €
@@ -1081,7 +1142,7 @@ export default function CommanderPage() {
                     <div className="flex-1">
                       <p className="font-bold text-lg text-gray-900">Virement bancaire</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        💳 Vous recevrez les coordonnées bancaires par email après validation de votre commande
+                        Vous recevrez les coordonnées bancaires par email après validation de votre commande
                       </p>
                     </div>
                   </label>
@@ -1096,7 +1157,7 @@ export default function CommanderPage() {
                     <div className="flex-1">
                       <p className="font-bold text-lg text-gray-900">Paiement sur place</p>
                       <p className="text-sm text-gray-600 mt-1">
-                        💰 Payez lors du retrait ou de la livraison
+                        Payez lors du retrait ou de la livraison
                       </p>
                       <PaymentMethodsBadge variant="compact" className="mt-3" />
                     </div>
@@ -1256,7 +1317,7 @@ export default function CommanderPage() {
 
                   <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <p className="text-sm text-amber-800">
-                      ℹ️ En cliquant sur "Valider la commande", vous confirmez votre commande.
+                      En cliquant sur "Valider la commande", vous confirmez votre commande.
                       Vous recevrez un email de confirmation avec tous les détails.
                     </p>
                   </div>
@@ -1280,7 +1341,7 @@ export default function CommanderPage() {
                 <Button
                   type="submit"
                   className="min-w-[200px]"
-                  disabled={submitting || Object.keys(cart).length === 0}
+                  disabled={submitting || Object.keys(cart).length === 0 || !isCurrentStepValid()}
                 >
                   {submitting ? (
                     <>
@@ -1296,6 +1357,7 @@ export default function CommanderPage() {
                   type="button"
                   onClick={goToNextStep}
                   className="min-w-[120px]"
+                  disabled={!isCurrentStepValid()}
                 >
                   Suivant →
                 </Button>

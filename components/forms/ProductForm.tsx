@@ -124,6 +124,39 @@ export default function ProductForm({
     onSubmit,
   })
 
+  const [hasChanges, setHasChanges] = useState(false)
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+
+  // Détecter les changements
+  React.useEffect(() => {
+    const initial = { ...defaultValues, ...initialValues }
+    const changed = JSON.stringify(initial) !== JSON.stringify(values)
+    setHasChanges(changed)
+  }, [values, initialValues])
+
+  const handleCancelClick = () => {
+    if (hasChanges) {
+      setShowExitConfirm(true)
+    } else {
+      onCancel?.()
+    }
+  }
+
+  const handleSaveAndExit = async () => {
+    await handleSubmit()
+    setShowExitConfirm(false)
+    onCancel?.()
+  }
+
+  const handleExitWithoutSaving = () => {
+    setShowExitConfirm(false)
+    onCancel?.()
+  }
+
+  const handleContinueEditing = () => {
+    setShowExitConfirm(false)
+  }
+
   const productTypeOptions = [
     { value: 'ITEM', label: 'Article' },
     { value: 'MENU', label: 'Menu' },
@@ -479,7 +512,7 @@ export default function ProductForm({
           <Button
             type="button"
             variant="secondary"
-            onClick={onCancel}
+            onClick={handleCancelClick}
             disabled={isSubmitting || isLoading}
           >
             Annuler
@@ -494,6 +527,46 @@ export default function ProductForm({
           {isSubmitting || isLoading ? 'Enregistrement...' : submitLabel}
         </Button>
       </div>
+
+      {/* Confirmation Modal */}
+      {showExitConfirm && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 space-y-4">
+            <h3 className="text-xl font-bold text-gray-900">
+              Modifications non sauvegardées
+            </h3>
+            <p className="text-gray-600">
+              Vous avez des modifications non sauvegardées. Que souhaitez-vous faire ?
+            </p>
+            <div className="flex flex-col gap-2 pt-4">
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleSaveAndExit}
+                className="bg-emerald-600 hover:bg-emerald-700 w-full"
+              >
+                Sauvegarder et quitter
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleContinueEditing}
+                className="w-full"
+              >
+                Continuer les modifications
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleExitWithoutSaving}
+                className="text-red-600 hover:bg-red-50 w-full"
+              >
+                Quitter sans sauvegarder
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   )
 }

@@ -131,61 +131,69 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
+      <section className="relative overflow-hidden">
+        {/* Desktop Header Image (visible on desktop only) */}
+        <div
+          className="hidden lg:block absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/Header-page-parents.jpg')" }}
+        />
+
+        {/* Mobile Background (visible on mobile only) */}
+        <div className="block lg:hidden absolute inset-0 bg-gradient-to-br from-[#003f5c] via-[#2f6690] to-[#7a5195]">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }} />
+          </div>
         </div>
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="text-center">
-            {/* Logo/Icon */}
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center shadow-2xl">
-                <span className="text-amber-600 font-bold text-4xl">P</span>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            {/* Left side - empty space for logo on desktop */}
+            <div className="hidden lg:block flex-1"></div>
+
+            {/* Right side - Content */}
+            <div className="flex-1 text-center lg:text-right animate-fade-in">
+              {/* Main Title */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-3 leading-tight animate-slide-up tracking-tight text-gray-900 lg:text-gray-900">
+                Unité <span className="text-[#003f5c] lg:text-[#5a9fd4]">BR002</span>
+              </h1>
+              <p className="text-lg sm:text-xl md:text-2xl font-bold mb-5 text-white lg:text-gray-700 animate-slide-up animation-delay-100">
+                Unité Scoute d'Écaussinnes
+              </p>
+
+              {/* Description */}
+              <p className="text-sm md:text-base text-blue-50 lg:text-gray-600 max-w-md lg:ml-auto mb-8 leading-relaxed animate-slide-up animation-delay-200">
+                Soutenez les activités de notre unité scoute en participant à nos ventes et événements.
+                Chaque commande contribue au financement de nos camps et activités.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-end items-center animate-slide-up animation-delay-300">
+                <a
+                  href="#events"
+                  className="group px-6 py-3 bg-[#003f5c] text-white rounded-full font-semibold text-base shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
+                >
+                  <span className="flex items-center gap-2">
+                    Découvrir les événements
+                    <svg
+                      className="w-5 h-5 group-hover:translate-x-1 transition-transform"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </a>
+                <a
+                  href="#about"
+                  className="px-6 py-3 border-2 border-white lg:border-[#003f5c] text-white lg:text-[#003f5c] rounded-full font-semibold text-base hover:bg-[#003f5c] hover:text-white transition-all duration-300"
+                >
+                  En savoir plus
+                </a>
               </div>
-            </div>
-
-            {/* Main Title */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              Pionniers Écaussinnes
-            </h1>
-            <p className="text-xl sm:text-2xl md:text-3xl font-medium mb-8 text-amber-50">
-              15e Unité Scouts - Ventes & Événements
-            </p>
-
-            {/* Description */}
-            <p className="text-base md:text-lg text-amber-50 max-w-2xl mx-auto mb-10 leading-relaxed">
-              Soutenez les activités de notre unité scoute en participant à nos ventes et événements.
-              Chaque commande contribue au financement de nos camps et activités.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="#events"
-                className="group px-8 py-4 bg-white text-amber-600 rounded-full font-semibold text-lg shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300"
-              >
-                <span className="flex items-center gap-2">
-                  Découvrir les événements
-                  <svg
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
-                </span>
-              </a>
-              <a
-                href="#about"
-                className="px-8 py-4 border-2 border-white text-white rounded-full font-semibold text-lg hover:bg-white hover:text-amber-600 transition-all duration-300"
-              >
-                En savoir plus
-              </a>
             </div>
           </div>
         </div>
@@ -205,9 +213,9 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <ShoppingBag className="w-8 h-8 text-amber-600" />
+            <div className="text-center p-6 group hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors duration-300">
+                <ShoppingBag className="w-8 h-8 text-[#003f5c]" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Commandes faciles</h3>
               <p className="text-gray-600">
@@ -216,9 +224,9 @@ export default async function HomePage() {
             </div>
 
             {/* Feature 2 */}
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-8 h-8 text-amber-600" />
+            <div className="text-center p-6 group hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors duration-300">
+                <Calendar className="w-8 h-8 text-[#003f5c]" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Événements variés</h3>
               <p className="text-gray-600">
@@ -227,9 +235,9 @@ export default async function HomePage() {
             </div>
 
             {/* Feature 3 */}
-            <div className="text-center p-6">
-              <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <MapPin className="w-8 h-8 text-amber-600" />
+            <div className="text-center p-6 group hover:scale-105 transition-transform duration-300">
+              <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-200 transition-colors duration-300">
+                <MapPin className="w-8 h-8 text-[#003f5c]" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Retrait local</h3>
               <p className="text-gray-600">
@@ -283,9 +291,9 @@ export default async function HomePage() {
                     <Link
                       key={event.id}
                       href={`/event/${event.slug}`}
-                      className="group"
+                      className="group animate-fade-in-up"
                     >
-                      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-amber-400">
+                      <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 border-transparent hover:border-blue-400 transform hover:-translate-y-1">
                         {/* Card Header with Section Color */}
                         <div
                           className="h-2"
@@ -295,14 +303,14 @@ export default async function HomePage() {
                         <div className="p-6">
                           {/* Event Type Badge */}
                           <div className="flex items-center gap-2 mb-3">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-sm font-medium">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium group-hover:bg-blue-200 transition-colors duration-300">
                               {getEventTypeIcon(event.event_type)}
                               {getEventTypeLabel(event.event_type)}
                             </span>
                           </div>
 
                           {/* Event Title */}
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-amber-600 transition-colors">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#003f5c] transition-colors">
                             {event.name}
                           </h3>
 
@@ -331,7 +339,7 @@ export default async function HomePage() {
 
                           {/* CTA */}
                           <div className="mt-4">
-                            <span className="inline-flex items-center text-amber-600 font-semibold group-hover:text-amber-700">
+                            <span className="inline-flex items-center text-[#003f5c] font-semibold group-hover:text-[#2f6690]">
                               Commander
                               <svg
                                 className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform"

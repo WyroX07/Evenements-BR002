@@ -5,7 +5,11 @@ import { usePathname } from 'next/navigation'
 import { Home, Calendar, Info, Menu, X, Settings } from 'lucide-react'
 import { useState } from 'react'
 
-export default function Navbar() {
+interface NavbarProps {
+  onOpenAdminModal: () => void
+}
+
+export default function Navbar({ onOpenAdminModal }: NavbarProps) {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
@@ -16,8 +20,8 @@ export default function Navbar() {
 
   const navItems = [
     { href: '/', label: 'Accueil', icon: Home },
-    { href: '/#events', label: 'Événements', icon: Calendar },
     { href: '/#about', label: 'À propos', icon: Info },
+    { href: '/#events', label: 'Événements', icon: Calendar },
   ]
 
   const isActive = (href: string) => {
@@ -33,11 +37,15 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           {/* Logo & Brand */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-              <span className="text-white font-bold text-xl">P</span>
+            <div className="h-7 group-hover:scale-105 transition-transform">
+              <img
+                src="/Logo-Scouts-Ecaussinnes-Couleurs.png"
+                alt="Scouts Écaussinnes"
+                className="h-full w-auto object-contain"
+              />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg font-bold text-gray-900">Pionniers Écaussinnes</h1>
+              <h1 className="text-base font-bold text-gray-900">Unité BR002</h1>
               <p className="text-xs text-gray-500">Ventes & Événements</p>
             </div>
           </Link>
@@ -53,7 +61,7 @@ export default function Navbar() {
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                     active
-                      ? 'bg-amber-50 text-amber-700'
+                      ? 'bg-blue-50 text-[#003f5c]'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   }`}
                 >
@@ -64,14 +72,14 @@ export default function Navbar() {
             })}
 
             {/* Admin link */}
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-all ml-2 border-l border-gray-200"
+            <button
+              onClick={onOpenAdminModal}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-gray-500 hover:text-[#003f5c] hover:bg-blue-50 transition-all ml-2 border-l border-gray-200"
               title="Administration"
             >
               <Settings className="w-4 h-4" />
               Admin
-            </Link>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -98,7 +106,7 @@ export default function Navbar() {
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
                       active
-                        ? 'bg-amber-50 text-amber-700'
+                        ? 'bg-blue-50 text-[#003f5c]'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
@@ -109,14 +117,16 @@ export default function Navbar() {
               })}
 
               {/* Admin link mobile */}
-              <Link
-                href="/admin/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-all border-t border-gray-100 mt-2 pt-4"
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false)
+                  onOpenAdminModal()
+                }}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm text-gray-500 hover:text-[#003f5c] hover:bg-blue-50 transition-all border-t border-gray-100 mt-2 pt-4 w-full"
               >
                 <Settings className="w-5 h-5" />
                 Administration
-              </Link>
+              </button>
             </div>
           </div>
         )}

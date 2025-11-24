@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 /**
@@ -18,22 +19,21 @@ export default function PaymentMethodsBadge({
 }: PaymentMethodsBadgeProps) {
   if (variant === 'compact') {
     return (
-      <div className={cn('flex items-center gap-2', className)}>
-        <div className="flex gap-1.5">
-          {/* Cash */}
-          <div className="h-6 px-2 bg-green-600 text-white rounded flex items-center justify-center text-xs font-medium">
-            Cash
-          </div>
+      <div className={cn('flex flex-wrap items-center gap-2', className)}>
+        {/* Bandeau paiement PNG */}
+        <div className="flex-shrink-0">
+          <Image
+            src="/img/Bandeau-paiement.png"
+            alt="Moyens de paiement acceptés"
+            width={300}
+            height={40}
+            className="h-8 w-auto"
+          />
+        </div>
 
-          {/* Carte */}
-          <div className="h-6 px-2 bg-blue-600 text-white rounded flex items-center justify-center text-xs font-medium">
-            Carte
-          </div>
-
-          {/* Sans contact */}
-          <div className="h-6 px-2 bg-gray-800 text-white rounded flex items-center justify-center text-xs font-medium">
-            📱 NFC
-          </div>
+        {/* Cash option stylisée */}
+        <div className="h-8 px-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg flex items-center justify-center shadow-sm hover:shadow-md transition-shadow">
+          <span className="text-sm font-bold">💵 CASH</span>
         </div>
       </div>
     )
@@ -41,27 +41,7 @@ export default function PaymentMethodsBadge({
 
   return (
     <div className={cn('space-y-3', className)}>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-        {/* Cash */}
-        <div className="aspect-[3/2] bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-sm">
-          <span className="text-white font-bold text-sm">CASH</span>
-        </div>
-
-        {/* Visa */}
-        <div className="aspect-[3/2] bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-200">
-          <svg className="h-5" viewBox="0 0 48 16" fill="none">
-            <path d="M20.5 0L17.8 16h4.3l2.7-16h-4.3zM35.4 10.4c0-2.9-4-3.1-4-4.4 0-.4.4-.8 1.2-.9 1.9-.2 3.3.3 4.3.8l.8-3.7c-1-.4-2.4-.8-4.1-.8-4.3 0-7.4 2.3-7.4 5.6 0 2.4 2.2 3.8 3.8 4.6 1.7.8 2.3 1.3 2.3 2 0 1.1-1.3 1.6-2.5 1.6-2.1 0-3.2-.3-4.9-1.1l-.9 4.1c1.1.5 3.2.9 5.3.9 4.6.1 7.6-2.2 7.6-5.7zM45.4 0c-1 0-1.8.6-2.2 1.5L36.5 16h4.6l.9-2.5h5.6l.5 2.5H52L48.7 0h-3.3zm.1 5.7l1.3 6.4h-3.6l2.3-6.4zM15.7 0l-4.2 10.9L11 7.3C10.2 4.6 7.9 1.9 5.2.9L9 16h4.6L20.3 0h-4.6z" fill="#1434CB"/>
-          </svg>
-        </div>
-
-        {/* Mastercard */}
-        <div className="aspect-[3/2] bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-200">
-          <svg className="h-5" viewBox="0 0 48 32" fill="none">
-            <circle cx="18" cy="16" r="14" fill="#EB001B"/>
-            <circle cx="30" cy="16" r="14" fill="#F79E1B" fillOpacity="0.8"/>
-          </svg>
-        </div>
-
+      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
         {/* Apple Pay */}
         <div className="aspect-[3/2] bg-black rounded-lg flex items-center justify-center shadow-sm">
           <svg className="h-5" viewBox="0 0 48 20" fill="white">
@@ -83,10 +63,27 @@ export default function PaymentMethodsBadge({
 
         {/* Bancontact */}
         <div className="aspect-[3/2] bg-white rounded-lg flex items-center justify-center shadow-sm border border-gray-200">
-          <svg className="h-5" viewBox="0 0 48 20" fill="none">
-            <path d="M3 10h42M3 6h42M3 14h42" stroke="#005498" strokeWidth="2"/>
-            <text x="24" y="13" textAnchor="middle" fontSize="8" fontWeight="bold" fill="#005498">BC</text>
-          </svg>
+          <span className="text-xs font-bold text-blue-800">Bancontact</span>
+        </div>
+
+        {/* Sans contact */}
+        <div className="aspect-[3/2] bg-gray-800 rounded-lg flex items-center justify-center shadow-sm">
+          <span className="text-xs font-bold text-white">Sans contact</span>
+        </div>
+
+        {/* Wero */}
+        <div className="aspect-[3/2] bg-purple-600 rounded-lg flex items-center justify-center shadow-sm">
+          <span className="text-sm font-bold text-white">wero</span>
+        </div>
+
+        {/* Payconiq */}
+        <div className="aspect-[3/2] bg-pink-600 rounded-lg flex items-center justify-center shadow-sm">
+          <span className="text-sm font-bold text-white">Payconiq</span>
+        </div>
+
+        {/* Cash */}
+        <div className="aspect-[3/2] bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-sm">
+          <span className="text-white font-bold text-sm">CASH</span>
         </div>
       </div>
 

@@ -2,14 +2,21 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import ToastContainer from '@/components/ToastContainer'
-import Navbar from '@/components/layout/Navbar'
-import Footer from '@/components/layout/Footer'
+import LayoutWrapper from '@/components/layout/LayoutWrapper'
+import { Poppins } from 'next/font/google'
+
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-poppins',
+})
 
 export const metadata: Metadata = {
-  title: 'Pionniers Écaussinnes - Ventes & Événements',
-  description: 'Plateforme de ventes et événements pour soutenir les activités de la 15e Unité Scouts - Pionniers d\'Écaussinnes',
+  title: 'Scouts Écaussinnes - Soupers et Ventes spéciales',
+  description: 'Plateforme centralisée pour les réservations de soupers et les commandes des ventes spéciales des difféntes sections de l&#39;unité scoute d& #39;Écaussinnes.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.png',
   },
 }
 
@@ -19,14 +26,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr">
-      <body className="min-h-screen bg-white antialiased flex flex-col">
+    <html lang="fr" className={poppins.variable}>
+      <body className="min-h-screen bg-white antialiased flex flex-col font-sans">
         <ToastProvider>
-          <Navbar />
-          <main className="flex-1">
+          <LayoutWrapper>
             {children}
-          </main>
-          <Footer />
+          </LayoutWrapper>
           <ToastContainer />
         </ToastProvider>
       </body>

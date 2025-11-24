@@ -56,6 +56,70 @@ export async function PATCH(
         }
       }
 
+      // Gérer la transition du stock selon le statut
+      const oldStatus = order.status
+      const newStatus = status
+
+      // Décrémenter le stock quand la commande est confirmée (PENDING → PAID)
+      if (oldStatus === 'PENDING' && newStatus === 'PAID') {
+        // Récupérer les items de la commande
+        const { data: orderItems, error: itemsError } = await supabase
+          .from('order_items')
+          .select('product_id, qty')
+          .eq('order_id', id)
+
+        if (itemsError) {
+          console.error('Erreur récupération items:', itemsError)
+          return NextResponse.json(
+            { error: 'Erreur lors de la récupération des items' },
+            { status: 500 }
+          )
+        }
+
+        // Décrémenter le stock pour chaque produit
+        for (const item of orderItems) {
+          const { error: stockError } = await supabase.rpc('decrement_product_stock', {
+            product_id: item.product_id,
+            quantity: item.qty
+          })
+
+          if (stockError) {
+            console.error('Erreur décrémentation stock:', stockError)
+            // Ne pas bloquer la commande, juste logger l'erreur
+            // En production, on pourrait envoyer une alerte admin
+          }
+        }
+      }
+
+      // Restaurer le stock quand la commande est annulée
+      if (newStatus === 'CANCELLED' && ['PAID', 'PREPARED'].includes(oldStatus)) {
+        // Récupérer les items de la commande
+        const { data: orderItems, error: itemsError } = await supabase
+          .from('order_items')
+          .select('product_id, qty')
+          .eq('order_id', id)
+
+        if (itemsError) {
+          console.error('Erreur récupération items:', itemsError)
+          return NextResponse.json(
+            { error: 'Erreur lors de la récupération des items' },
+            { status: 500 }
+          )
+        }
+
+        // Incrémenter le stock pour chaque produit (restauration)
+        for (const item of orderItems) {
+          const { error: stockError } = await supabase.rpc('increment_product_stock', {
+            product_id: item.product_id,
+            quantity: item.qty
+          })
+
+          if (stockError) {
+            console.error('Erreur restauration stock:', stockError)
+          }
+        }
+      }
+
       // Mettre à jour le statut
       const { error: updateError } = await supabase
         .from('orders')
@@ -69,10 +133,6 @@ export async function PATCH(
           { status: 500 }
         )
       }
-
-      // TODO: Gérer la gestion du stock selon les transitions
-      // PAID → PREPARED : décrémenter stock
-      // * → CANCELLED : restaurer stock
 
       return NextResponse.json({ success: true })
     } else {

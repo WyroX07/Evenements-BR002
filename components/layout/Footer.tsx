@@ -10,17 +10,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* About */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-md">
-                <span className="text-white font-bold text-xl">P</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900">Pionniers Écaussinnes</h3>
-                <p className="text-xs text-gray-500">15e Unité Scouts</p>
-              </div>
+            <div className="h-8 mb-4">
+              <img
+                src="/Logo-Scouts-Ecaussinnes-Couleurs.png"
+                alt="Scouts Écaussinnes"
+                className="h-full w-auto object-contain"
+              />
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Plateforme de ventes et événements pour soutenir les activités de notre unité scoute.
+            <p className="text-sm text-gray-600 leading-relaxed mb-2">
+              Unité Scoute d'Écaussinnes
+            </p>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              2ème Unité Brunehaut - Unité Jean Nibelle
             </p>
           </div>
 
@@ -29,11 +30,11 @@ export default function Footer() {
             <h3 className="font-semibold text-gray-900 mb-4">Contact</h3>
             <div className="space-y-3">
               <a
-                href="mailto:contact@pionniers-ecaussinnes.be"
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-amber-600 transition-colors"
+                href="mailto:contact@scouts-ecaussinnes.be"
+                className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#003f5c] transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                contact@pionniers-ecaussinnes.be
+                contact@scouts-ecaussinnes.be
               </a>
               <div className="flex items-start gap-2 text-sm text-gray-600">
                 <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
@@ -48,13 +49,13 @@ export default function Footer() {
             <div className="space-y-2">
               <Link
                 href="/"
-                className="block text-sm text-gray-600 hover:text-amber-600 transition-colors"
+                className="block text-sm text-gray-600 hover:text-[#003f5c] transition-colors"
               >
                 Événements
               </Link>
               <Link
                 href="/privacy"
-                className="block text-sm text-gray-600 hover:text-amber-600 transition-colors"
+                className="block text-sm text-gray-600 hover:text-[#003f5c] transition-colors"
               >
                 Politique de confidentialité
               </Link>
@@ -62,7 +63,7 @@ export default function Footer() {
                 href="https://lesscouts.be"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-gray-600 hover:text-amber-600 transition-colors"
+                className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#003f5c] transition-colors"
               >
                 Les Scouts
                 <ExternalLink className="w-3 h-3" />
@@ -74,7 +75,7 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-center text-xs text-gray-500">
-            © {new Date().getFullYear()} Pionniers Écaussinnes - 15e Unité Scouts. Tous droits réservés.
+            © {new Date().getFullYear()} Scouts Écaussinnes - BR002 - 2e Unité Brunehault. Tous droits réservés.
           </p>
         </div>
       </div>
