@@ -141,9 +141,9 @@ export default function EventTemplateCremant({
         </div>
 
         {/* Subtle Pattern - Champagne Flutes */}
-        <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10 L27 20 L27 30 Q27 32 30 32 Q33 32 33 30 L33 20 L30 10 M30 32 L30 45 M28 45 L32 45 M29 45 L29 48 L31 48 L31 45' stroke='white' fill='none' stroke-width='1.2'/%3E%3C/svg%3E")`,
-          backgroundSize: '100px 100px',
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform='translate(40,15)'%3E%3C!-- Coupe --%3E%3Cpath d='M-8,0 L-6,10 Q-6,15 0,15 Q6,15 6,10 L8,0 Z' fill='none' stroke='white' stroke-width='1.5'/%3E%3C!-- Pied --%3E%3Cline x1='0' y1='15' x2='0' y2='28' stroke='white' stroke-width='1.5'/%3E%3C!-- Base --%3E%3Cpath d='M-5,28 L5,28 M-4,30 L4,30' stroke='white' stroke-width='1.5' stroke-linecap='round'/%3E%3C!-- Bulles --%3E%3Ccircle cx='-2' cy='8' r='0.8' fill='white' opacity='0.6'/%3E%3Ccircle cx='2' cy='6' r='0.8' fill='white' opacity='0.6'/%3E%3Ccircle cx='0' cy='10' r='0.8' fill='white' opacity='0.6'/%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundSize: '120px 120px',
         }} />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
@@ -159,7 +159,7 @@ export default function EventTemplateCremant({
 
             {/* Main Title */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight tracking-tight animate-slide-up">
-              {hero_config.title || "Vente de Bulles & Vins"}
+              Bulles & Vins pour les Fêtes
             </h1>
 
             {/* Simple Description */}
