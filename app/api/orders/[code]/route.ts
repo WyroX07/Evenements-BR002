@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
+import QRCode from 'qrcode'
 
 /**
  * GET /api/orders/[code]
- * Récupère une commande par son code unique
+ * Recupere les details d'une commande par son code
  */
 export async function GET(
   request: NextRequest,
@@ -11,55 +12,46 @@ export async function GET(
 ) {
   try {
     const { code } = await params
-
-    if (!code || code.length < 6) {
-      return NextResponse.json(
-        { error: 'Code de commande invalide' },
-        { status: 400 }
-      )
-    }
-
     const supabase = createServerClient() as any
 
-    // Récupérer la commande avec tous les détails
+    // Recuperer la commande avec toutes les relations
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select(`
         *,
         event:events(
           id,
-          name,
           slug,
-          start_date,
-          end_date,
-          config,
+          name,
+          event_type,
           section:sections(
             id,
             name,
+            slug,
+            color,
             iban,
             iban_name
           )
         ),
+        slot:slots(
+          id,
+          date,
+          start_time,
+          end_time
+        ),
         items:order_items(
           id,
-          quantity,
+          product_id,
+          qty,
           unit_price_cents,
-          total_price_cents,
           product:products(
             id,
             name,
-            description,
             product_type
           )
-        ),
-        promo_code:promo_codes(
-          id,
-          code,
-          discount_cents,
-          description
         )
       `)
-      .eq('order_code', code.toUpperCase())
+      .eq('code', code)
       .single()
 
     if (orderError || !order) {
@@ -69,9 +61,52 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ order })
+    // Construire l'adresse complete si livraison
+    const deliveryAddress = order.address && order.city && order.zip
+      ? `${order.address}, ${order.zip} ${order.city}`
+      : null
+
+    // Reformater les donnees pour correspondre au format attendu par la page
+    const formattedOrder = {
+      id: order.id,
+      code: order.code,
+      customer_name: order.customer_name,
+      email: order.email,
+      phone: order.phone,
+      delivery_type: order.delivery_type,
+      delivery_address: deliveryAddress,
+      payment_method: order.payment_method,
+      payment_communication: order.payment_communication,
+      total_cents: order.total_cents,
+      status: order.status,
+      created_at: order.created_at,
+      event: order.event,
+      slot: order.slot,
+      items: order.items.map((item: any) => ({
+        id: item.id,
+        product_id: item.product_id,
+        quantity: item.qty,
+        unit_price_cents: item.unit_price_cents,
+        product: item.product,
+      })),
+    }
+
+    // Generer le QR code
+    const qrCodeDataUrl = await QRCode.toDataURL(order.code, {
+      width: 300,
+      margin: 2,
+      color: {
+        dark: '#000000',
+        light: '#FFFFFF',
+      },
+    })
+
+    return NextResponse.json({
+      order: formattedOrder,
+      qrCodeDataUrl,
+    })
   } catch (error) {
-    console.error('Error in GET /api/orders/[code]:', error)
+    console.error('Erreur GET order by code:', error)
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }

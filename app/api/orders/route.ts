@@ -12,14 +12,14 @@ import { z } from 'zod'
  */
 export async function POST(request: NextRequest) {
   try {
+    console.log('[POST /api/orders] Starting order creation')
     const body = await request.json()
+    console.log('[POST /api/orders] Body received:', { eventId: body.eventId, itemCount: body.items?.length })
 
-    // Ajouter event_id au schéma de validation
-    const orderSchemaV2 = createOrderSchema.extend({
-      eventId: z.string().uuid('ID d\'événement invalide'),
-    })
-
-    const validatedData = orderSchemaV2.parse(body)
+    // Valider l'eventId séparément car createOrderSchema utilise .refine() et ne peut pas être étendu
+    const eventId = z.string().uuid('ID d\'événement invalide').parse(body.eventId)
+    const validatedData = createOrderSchema.parse(body)
+    console.log('[POST /api/orders] Data validated')
 
     const supabase = createServerClient() as any
 
@@ -34,20 +34,24 @@ export async function POST(request: NextRequest) {
           iban_name
         )
       `)
-      .eq('id', validatedData.eventId)
+      .eq('id', eventId)
       .eq('status', 'ACTIVE')
       .single()
 
     if (eventError || !event) {
+      console.error('[POST /api/orders] Event not found:', eventError)
       return NextResponse.json(
         { error: 'Événement introuvable ou non actif' },
         { status: 404 }
       )
     }
 
+    console.log('[POST /api/orders] Event found:', event.id)
+
     // Vérifier la période de vente
     const today = new Date().toISOString().split('T')[0]
     if (today < event.start_date || today > event.end_date) {
+      console.log('[POST /api/orders] Event period invalid:', { today, start: event.start_date, end: event.end_date })
       return NextResponse.json(
         { error: 'Les commandes ne sont plus acceptées pour cet événement' },
         { status: 410 }
@@ -63,12 +67,16 @@ export async function POST(request: NextRequest) {
       .in('id', productIds)
 
     if (productsError) {
-      console.error('Erreur récupération produits:', productsError)
+      console.error('[POST /api/orders] Error fetching products:', productsError)
       return NextResponse.json(
         { error: 'Erreur lors de la récupération des produits' },
         { status: 500 }
       )
     }
+
+    console.log('[POST /api/orders] Products fetched:', products.length)
+    console.log('[POST /api/orders] Product IDs requested:', productIds)
+    console.log('[POST /api/orders] Product IDs found:', products.map(p => p.id))
 
     // Valider que tous les produits existent et sont actifs
     const productMap = new Map(products.map((p) => [p.id, p]))
@@ -76,6 +84,7 @@ export async function POST(request: NextRequest) {
     for (const item of validatedData.items) {
       const product = productMap.get(item.cuveeId)
       if (!product || !product.is_active) {
+        console.error('[POST /api/orders] Product not found or inactive:', item.cuveeId)
         return NextResponse.json(
           { error: `Produit ${item.cuveeId} non disponible` },
           { status: 400 }
@@ -175,9 +184,17 @@ export async function POST(request: NextRequest) {
         .from('promo_codes')
         .select('id, code, discount_cents, is_active')
         .ilike('code', validatedData.promoCode.trim())
-        .single()
+        .maybeSingle()
 
-      if (promoError || !promoCode || !promoCode.is_active) {
+      if (promoError) {
+        console.error('Erreur validation code promo:', promoError)
+        return NextResponse.json(
+          { error: 'Erreur lors de la validation du code promo' },
+          { status: 500 }
+        )
+      }
+
+      if (!promoCode || !promoCode.is_active) {
         return NextResponse.json(
           { error: 'Code promo invalide ou inactif' },
           { status: 400 }
@@ -219,6 +236,7 @@ export async function POST(request: NextRequest) {
     )
 
     // 10. Créer la commande
+    console.log('[POST /api/orders] Creating order with code:', orderCode)
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -249,12 +267,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (orderError) {
-      console.error('Erreur création commande:', orderError)
+      console.error('[POST /api/orders] Error creating order:', orderError)
       return NextResponse.json(
         { error: 'Erreur lors de la création de la commande' },
         { status: 500 }
       )
     }
+
+    console.log('[POST /api/orders] Order created:', order.id)
 
     // 11. Créer les lignes de commande
     const orderItems = validatedData.items.map((item) => ({
@@ -270,7 +290,7 @@ export async function POST(request: NextRequest) {
       .insert(orderItems)
 
     if (itemsError) {
-      console.error('Erreur création lignes commande:', itemsError)
+      console.error('[POST /api/orders] Error creating order items:', itemsError)
       // Rollback
       await supabase.from('orders').delete().eq('id', order.id)
       return NextResponse.json(
@@ -278,6 +298,8 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       )
     }
+
+    console.log('[POST /api/orders] Order items created')
 
     // 12. Préparer et envoyer l'email de confirmation
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
@@ -346,6 +368,7 @@ export async function POST(request: NextRequest) {
     })
 
     // 13. Retourner la commande
+    console.log('[POST /api/orders] Order creation completed successfully')
     return NextResponse.json(
       {
         success: true,
@@ -361,13 +384,14 @@ export async function POST(request: NextRequest) {
     )
   } catch (error) {
     if (error instanceof z.ZodError) {
+      console.error('[POST /api/orders] Validation error:', error.errors)
       return NextResponse.json(
         { error: 'Données invalides', details: error.errors },
         { status: 400 }
       )
     }
 
-    console.error('Erreur création commande:', error)
+    console.error('[POST /api/orders] Unexpected error:', error)
     return NextResponse.json(
       { error: 'Erreur serveur lors de la création de la commande' },
       { status: 500 }

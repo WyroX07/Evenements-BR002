@@ -37,15 +37,15 @@ export const createOrderSchema = z
     }),
 
     // Créneau (obligatoire si PICKUP)
-    slotId: z.string().uuid('ID de créneau invalide').nullable(),
+    slotId: z.string().uuid('ID de créneau invalide').nullish(),
 
     // Adresse (obligatoire si DELIVERY)
-    address: z.string().min(5, 'Adresse trop courte').max(200).nullable(),
-    city: z.string().min(2, 'Ville trop courte').max(100).nullable(),
+    address: z.string().min(5, 'Adresse trop courte').max(200).nullish(),
+    city: z.string().min(2, 'Ville trop courte').max(100).nullish(),
     zip: z
       .string()
       .regex(/^\d{4}$/, 'Code postal belge invalide (4 chiffres)')
-      .nullable(),
+      .nullish(),
 
     // Méthode de paiement
     paymentMethod: z.enum(['BANK_TRANSFER', 'ON_SITE', 'PAY_LINK'], {
