@@ -91,8 +91,11 @@ export async function GET(
       })),
     }
 
-    // Generer le QR code
-    const qrCodeDataUrl = await QRCode.toDataURL(order.code, {
+    // Generer le QR code avec URL vers la page admin de scan
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
+    const scanUrl = `${baseUrl}/admin/scan/${order.code}`
+
+    const qrCodeDataUrl = await QRCode.toDataURL(scanUrl, {
       width: 300,
       margin: 2,
       color: {

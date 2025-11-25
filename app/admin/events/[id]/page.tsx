@@ -164,7 +164,7 @@ export default function EventDetailPage() {
       }
 
       // Fetch orders for this event
-      const ordersRes = await fetch(`/api/admin/orders?eventId=${eventId}`)
+      const ordersRes = await fetch(`/api/admin/orders?event_id=${eventId}`)
       if (ordersRes.ok) {
         const ordersData = await ordersRes.json()
         setOrders(ordersData.orders || [])
@@ -1062,7 +1062,7 @@ export default function EventDetailPage() {
                           <tr key={order.id} className="hover:bg-gray-50">
                             <td className="px-4 py-3">
                               <Link
-                                href={`/merci/${order.code}`}
+                                href={`/admin/scan/${order.code}`}
                                 target="_blank"
                                 className="font-mono text-sm text-amber-600 hover:text-amber-700"
                               >

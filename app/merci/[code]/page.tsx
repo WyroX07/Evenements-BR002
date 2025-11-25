@@ -205,9 +205,14 @@ export default async function ConfirmationPage({
             </div>
 
             {/* QR Code */}
-            <div className="bg-gray-50 rounded-lg p-6 text-center">
+            <div className="bg-gray-50 rounded-lg p-6 text-center border-2 border-amber-200">
+              <p className="text-base font-semibold text-gray-800 mb-2">
+                {order.delivery_type === 'DELIVERY' ? 'QR Code de livraison' : 'QR Code de retrait'}
+              </p>
               <p className="text-sm text-gray-600 mb-4">
-                Présentez ce QR code lors du retrait
+                {order.delivery_type === 'DELIVERY'
+                  ? '⚠️ Veuillez présenter ce QR code lors de la livraison'
+                  : '⚠️ Veuillez présenter ce QR code lors du retrait'}
               </p>
               <div className="inline-block bg-white p-4 rounded-lg shadow-sm">
                 <img
@@ -216,6 +221,9 @@ export default async function ConfirmationPage({
                   className="w-48 h-48"
                 />
               </div>
+              <p className="text-xs text-gray-500 mt-3">
+                Ce QR code permettra une validation rapide de votre commande
+              </p>
             </div>
 
             {/* Customer Info */}

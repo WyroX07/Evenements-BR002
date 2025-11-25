@@ -301,7 +301,23 @@ export async function POST(request: NextRequest) {
 
     console.log('[POST /api/orders] Order items created')
 
-    // 12. Préparer et envoyer l'email de confirmation
+    // 12. Décompter le stock immédiatement lors de la création de commande
+    console.log('[POST /api/orders] Decrementing stock for order items')
+    for (const item of validatedData.items) {
+      const { error: stockError } = await supabase.rpc('decrement_product_stock', {
+        product_id: item.cuveeId,
+        quantity: item.qty
+      })
+
+      if (stockError) {
+        console.error('[POST /api/orders] Error decrementing stock:', stockError)
+        // Continue anyway - stock decrement failure shouldn't block order creation
+        // but we log it for manual review
+      }
+    }
+    console.log('[POST /api/orders] Stock decremented successfully')
+
+    // 13. Préparer et envoyer l'email de confirmation
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
     const confirmationUrl = `${baseUrl}/merci/${order.code}`
 
