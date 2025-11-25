@@ -25,6 +25,7 @@ import ProductForm, { ProductFormValues } from '@/components/forms/ProductForm'
 import SlotForm, { SlotFormValues } from '@/components/forms/SlotForm'
 import BulkSlotGeneratorForm, { BulkSlotParams } from '@/components/forms/BulkSlotGeneratorForm'
 import ProductImportModal from '@/components/admin/ProductImportModal'
+import EventInfoForm, { EventInfoFormValues } from '@/components/forms/EventInfoForm'
 import { useToast } from '@/contexts/ToastContext'
 
 interface Section {
@@ -108,11 +109,12 @@ export default function EventDetailPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [slots, setSlots] = useState<Slot[]>([])
   const [orders, setOrders] = useState<Order[]>([])
-  const [activeTab, setActiveTab] = useState<'products' | 'slots' | 'orders'>('products')
+  const [activeTab, setActiveTab] = useState<'info' | 'products' | 'slots' | 'orders'>('info')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
   // Modal states
+  const [isEventInfoModalOpen, setIsEventInfoModalOpen] = useState(false)
   const [isProductModalOpen, setIsProductModalOpen] = useState(false)
   const [isProductImportModalOpen, setIsProductImportModalOpen] = useState(false)
   const [isSlotModalOpen, setIsSlotModalOpen] = useState(false)
@@ -238,6 +240,43 @@ export default function EventDetailPage() {
       }
     } catch (err) {
       addToast('Erreur de suppression', 'error')
+    }
+  }
+
+  // Event info handlers
+  const handleUpdateEventInfo = async (values: EventInfoFormValues) => {
+    try {
+      // Formater les données pour l'API
+      const payload = {
+        name: values.name,
+        description: values.description,
+        start_date: values.start_date,
+        end_date: values.end_date,
+        config: {
+          pickup_address: values.pickup_address,
+          delivery_fee_cents: values.delivery_fee_cents,
+          delivery_min_bottles: values.delivery_min_bottles,
+        },
+      }
+
+      const res = await fetch(`/api/admin/events/${eventId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setEvent(data.event)
+        setIsEventInfoModalOpen(false)
+        addToast('Informations mises à jour avec succès', 'success')
+      } else {
+        const data = await res.json()
+        throw new Error(data.error || 'Erreur de mise à jour')
+      }
+    } catch (err: any) {
+      addToast(err.message || 'Erreur de mise à jour', 'error')
+      throw err
     }
   }
 
@@ -659,6 +698,17 @@ export default function EventDetailPage() {
           <div className="border-b border-gray-200">
             <nav className="flex -mb-px">
               <button
+                onClick={() => setActiveTab('info')}
+                className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 ${
+                  activeTab === 'info'
+                    ? 'border-amber-500 text-amber-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Settings className="w-4 h-4 inline mr-2" />
+                Informations
+              </button>
+              <button
                 onClick={() => setActiveTab('products')}
                 className={`flex-1 px-6 py-4 text-sm font-medium border-b-2 ${
                   activeTab === 'products'
@@ -696,6 +746,123 @@ export default function EventDetailPage() {
 
           {/* Tab Content */}
           <div className="p-6">
+            {/* Info Tab */}
+            {activeTab === 'info' && (
+              <div>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Informations de l'événement
+                  </h2>
+                  <Button
+                    className="bg-amber-600 hover:bg-amber-700"
+                    size="sm"
+                    onClick={() => setIsEventInfoModalOpen(true)}
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Modifier
+                  </Button>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Informations générales */}
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Settings className="w-5 h-5" />
+                      Informations générales
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Nom de l'événement
+                        </label>
+                        <p className="text-sm text-gray-900">{event.name}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Slug
+                        </label>
+                        <p className="text-sm text-gray-900 font-mono">{event.slug}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Type d'événement
+                        </label>
+                        <p className="text-sm text-gray-900">{event.event_type}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Statut
+                        </label>
+                        <p className="text-sm text-gray-900">{event.status}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Description
+                        </label>
+                        <p className="text-sm text-gray-900">{event.description || 'Aucune description'}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dates */}
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Calendar className="w-5 h-5" />
+                      Dates
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Date de début
+                        </label>
+                        <p className="text-sm text-gray-900">{formatDate(event.start_date)}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Date de fin
+                        </label>
+                        <p className="text-sm text-gray-900">{formatDate(event.end_date)}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Configuration */}
+                  <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                    <h3 className="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Package className="w-5 h-5" />
+                      Configuration de livraison
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Adresse de retrait
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {event.config?.pickup_address || 'Non définie'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Frais de livraison
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {event.config?.delivery_fee_cents ? formatPrice(event.config.delivery_fee_cents) : 'Non définis'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Minimum pour livraison
+                        </label>
+                        <p className="text-sm text-gray-900">
+                          {event.config?.delivery_min_bottles ? `${event.config.delivery_min_bottles} bouteilles` : 'Non défini'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Products Tab */}
             {activeTab === 'products' && (
               <div>
@@ -1199,6 +1366,29 @@ export default function EventDetailPage() {
           </div>
         </div>
       </main>
+
+      {/* Event Info Modal */}
+      <Modal
+        isOpen={isEventInfoModalOpen}
+        onClose={() => setIsEventInfoModalOpen(false)}
+        title="Modifier les informations de l'événement"
+        size="lg"
+      >
+        <EventInfoForm
+          initialValues={event ? {
+            name: event.name,
+            description: event.description,
+            start_date: event.start_date,
+            end_date: event.end_date,
+            pickup_address: event.config?.pickup_address || '',
+            delivery_fee_cents: event.config?.delivery_fee_cents || 0,
+            delivery_min_bottles: event.config?.delivery_min_bottles || 0,
+          } : undefined}
+          onSubmit={handleUpdateEventInfo}
+          onCancel={() => setIsEventInfoModalOpen(false)}
+          submitLabel="Mettre à jour"
+        />
+      </Modal>
 
       {/* Product Modal */}
       <Modal
