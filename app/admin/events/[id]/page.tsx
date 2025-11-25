@@ -14,7 +14,10 @@ import {
   Settings,
   ChevronDown,
   ChevronRight,
-  Download
+  Download,
+  X,
+  Check,
+  MoreVertical
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
@@ -474,6 +477,58 @@ export default function EventDetailPage() {
       addToast('Export réussi', 'success')
     } catch (err: any) {
       addToast(err.message || 'Erreur lors de l\'export', 'error')
+    }
+  }
+
+  const handleUpdateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          router.push('/admin/login')
+          return
+        }
+        const data = await res.json()
+        throw new Error(data.error || 'Erreur de mise à jour')
+      }
+
+      addToast('Statut mis à jour avec succès', 'success')
+      await fetchEventData()
+    } catch (err: any) {
+      addToast(err.message || 'Erreur de mise à jour du statut', 'error')
+    }
+  }
+
+  const handleCancelOrder = async (orderId: string, orderCode: string) => {
+    if (!confirm(`Êtes-vous sûr de vouloir annuler la commande ${orderCode} ? Cette action restaurera le stock.`)) {
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'CANCELLED' }),
+      })
+
+      if (!res.ok) {
+        if (res.status === 401) {
+          router.push('/admin/login')
+          return
+        }
+        const data = await res.json()
+        throw new Error(data.error || 'Erreur d\'annulation')
+      }
+
+      addToast('Commande annulée avec succès', 'success')
+      await fetchEventData()
+    } catch (err: any) {
+      addToast(err.message || 'Erreur d\'annulation de la commande', 'error')
     }
   }
 
@@ -1048,12 +1103,15 @@ export default function EventDetailPage() {
                           <th className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                             Date
                           </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-600 uppercase">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
                         {filteredOrders.length === 0 ? (
                           <tr>
-                            <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                            <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                               Aucune commande ne correspond aux filtres sélectionnés
                             </td>
                           </tr>
@@ -1085,6 +1143,50 @@ export default function EventDetailPage() {
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-600">
                               {formatDateTime(order.created_at)}
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {order.status === 'PENDING' && (
+                                  <button
+                                    onClick={() => handleUpdateOrderStatus(order.id, 'PAID')}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded border border-green-200 transition-colors"
+                                    title="Marquer comme payé"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Payé
+                                  </button>
+                                )}
+                                {order.status === 'PAID' && (
+                                  <button
+                                    onClick={() => handleUpdateOrderStatus(order.id, 'PREPARED')}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded border border-blue-200 transition-colors"
+                                    title="Marquer comme préparé"
+                                  >
+                                    <Package className="w-3 h-3 mr-1" />
+                                    Préparé
+                                  </button>
+                                )}
+                                {order.status === 'PREPARED' && (
+                                  <button
+                                    onClick={() => handleUpdateOrderStatus(order.id, 'DELIVERED')}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded border border-purple-200 transition-colors"
+                                    title="Marquer comme livré"
+                                  >
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Livré
+                                  </button>
+                                )}
+                                {!['CANCELLED', 'DELIVERED'].includes(order.status) && (
+                                  <button
+                                    onClick={() => handleCancelOrder(order.id, order.code)}
+                                    className="inline-flex items-center px-2 py-1 text-xs font-medium text-red-700 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors"
+                                    title="Annuler la commande"
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    Annuler
+                                  </button>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))
