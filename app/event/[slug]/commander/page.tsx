@@ -423,6 +423,20 @@ export default function CommanderPage() {
 
   // Cart functions
   const addToCart = (productId: string) => {
+    if (!event) return
+
+    const product = event.products.find(p => p.id === productId)
+    if (!product) return
+
+    // Check stock availability
+    if (product.stock !== null && product.stock !== undefined) {
+      const currentQty = cart[productId] || 0
+      if (currentQty >= product.stock) {
+        addToast('Stock insuffisant', 'error')
+        return
+      }
+    }
+
     setCart(prev => ({
       ...prev,
       [productId]: (prev[productId] || 0) + 1,
@@ -441,10 +455,22 @@ export default function CommanderPage() {
   }
 
   const updateQuantity = (productId: string, qty: number) => {
+    if (!event) return
+
+    const product = event.products.find(p => p.id === productId)
+    if (!product) return
+
     if (qty <= 0) {
       const { [productId]: _, ...rest } = cart
       setCart(rest)
     } else {
+      // Check stock availability
+      if (product.stock !== null && product.stock !== undefined) {
+        if (qty > product.stock) {
+          addToast(`Stock maximum: ${product.stock} bouteilles`, 'error')
+          return
+        }
+      }
       setCart(prev => ({ ...prev, [productId]: qty }))
     }
   }
@@ -540,6 +566,32 @@ export default function CommanderPage() {
     }
 
     setSubmitting(true)
+
+    // Refresh event data to get latest stock before submitting
+    try {
+      const refreshResponse = await fetch(`/api/events/${slug}`)
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json()
+        const latestEvent = refreshData.event
+
+        // Validate stock availability with latest data
+        for (const [productId, qty] of Object.entries(cart)) {
+          const product = latestEvent.products.find((p: any) => p.id === productId)
+          if (product && product.stock !== null && product.stock !== undefined) {
+            if (qty > product.stock) {
+              addToast(`Stock insuffisant pour ${product.name}. Quelqu'un a commandé entre temps. Stock actuel: ${product.stock}`, 'error')
+              setSubmitting(false)
+              // Refresh local event data
+              setEvent(latestEvent)
+              return
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing stock:', error)
+      // Continue anyway, the server will validate
+    }
 
     try {
       const items = Object.entries(cart).map(([productId, qty]) => {
@@ -703,8 +755,10 @@ export default function CommanderPage() {
                           )}
 
                           {product.stock !== null && (
-                            <p className="text-xs text-gray-500 mt-1">
-                              Stock disponible: {product.stock}
+                            <p className={`text-xs mt-1 font-medium ${
+                              product.stock - qty <= 5 ? 'text-red-600' : 'text-gray-600'
+                            }`}>
+                              Stock restant: {product.stock - qty} / {product.stock}
                             </p>
                           )}
                         </div>
@@ -716,10 +770,11 @@ export default function CommanderPage() {
                                 type="button"
                                 onClick={() => addToCart(product.id)}
                                 size="sm"
+                                disabled={product.stock !== null && product.stock <= 0}
                               >
-                                Ajouter
+                                {product.stock !== null && product.stock <= 0 ? 'Rupture' : 'Ajouter'}
                               </Button>
-                              {product.product_type === 'ITEM' && (
+                              {product.product_type === 'ITEM' && product.stock !== null && product.stock >= 6 && (
                                 <Button
                                   type="button"
                                   onClick={() => updateQuantity(product.id, 6)}
@@ -746,12 +801,17 @@ export default function CommanderPage() {
                                 <button
                                   type="button"
                                   onClick={() => addToCart(product.id)}
-                                  className="w-10 h-10 rounded-full bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center font-bold text-lg transition-colors"
+                                  disabled={product.stock !== null && qty >= product.stock}
+                                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${
+                                    product.stock !== null && qty >= product.stock
+                                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                      : 'bg-amber-600 hover:bg-amber-700 text-white'
+                                  }`}
                                 >
                                   +
                                 </button>
                               </div>
-                              {product.product_type === 'ITEM' && (
+                              {product.product_type === 'ITEM' && product.stock !== null && qty + 6 <= product.stock && (
                                 <Button
                                   type="button"
                                   onClick={() => updateQuantity(product.id, qty + 6)}
@@ -1263,7 +1323,7 @@ export default function CommanderPage() {
 
                       {discount > 0 && (
                         <div className="flex justify-between text-sm text-green-600">
-                          <span>Remise 10 pour 9</span>
+                          <span>Remise 12 pour 11</span>
                           <span className="font-semibold">-{(discount / 100).toFixed(2)} €</span>
                         </div>
                       )}
@@ -1485,7 +1545,7 @@ export default function CommanderPage() {
 
                     {discount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>Remise 10 pour 9</span>
+                        <span>Remise 12 pour 11</span>
                         <span className="font-medium tabular-nums">-{(discount / 100).toFixed(2)}&nbsp;€</span>
                       </div>
                     )}

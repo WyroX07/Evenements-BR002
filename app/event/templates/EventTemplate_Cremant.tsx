@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { Calendar, Users, MapPin, Wine, Sparkles, Award, Gift, Heart, PlayCircle } from 'lucide-react'
+import { Calendar, Users, MapPin, Wine, Sparkles, Award, Gift, Heart, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import ClientSlotDisplay from '@/components/event/ClientSlotDisplay'
 import ProductModal from '@/components/product/ProductModal'
@@ -87,6 +87,9 @@ export default function EventTemplateCremant({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  // Carousel state
+  const carouselRef = useRef<HTMLDivElement>(null)
+
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product)
     setIsModalOpen(true)
@@ -96,6 +99,20 @@ export default function EventTemplateCremant({
     setIsModalOpen(false)
     // Delay clearing the product to allow modal close animation
     setTimeout(() => setSelectedProduct(null), 300)
+  }
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.offsetWidth * 0.8
+      const newScrollPosition = direction === 'left'
+        ? carouselRef.current.scrollLeft - scrollAmount
+        : carouselRef.current.scrollLeft + scrollAmount
+
+      carouselRef.current.scrollTo({
+        left: newScrollPosition,
+        behavior: 'smooth'
+      })
+    }
   }
 
   const formatDate = (dateStr: string): string => {
@@ -123,9 +140,9 @@ export default function EventTemplateCremant({
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-green-300 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
         </div>
 
-        {/* Subtle Pattern */}
+        {/* Subtle Pattern - Champagne Flutes */}
         <div className="absolute inset-0 opacity-5" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10 L25 25 Q25 35 30 38 Q35 35 35 25 L30 10 M30 38 L30 50 M25 50 L35 50' stroke='white' fill='none' stroke-width='1.5'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 10 L27 20 L27 30 Q27 32 30 32 Q33 32 33 30 L33 20 L30 10 M30 32 L30 45 M28 45 L32 45 M29 45 L29 48 L31 48 L31 45' stroke='white' fill='none' stroke-width='1.2'/%3E%3C/svg%3E")`,
           backgroundSize: '100px 100px',
         }} />
 
@@ -142,7 +159,7 @@ export default function EventTemplateCremant({
 
             {/* Main Title */}
             <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight tracking-tight animate-slide-up">
-              {hero_config.title}
+              {hero_config.title || "Vente de Bulles & Vins"}
             </h1>
 
             {/* Simple Description */}
@@ -169,17 +186,23 @@ export default function EventTemplateCremant({
 
             {/* CTA Button */}
             <div className="animate-slide-up animation-delay-300">
-              <Link href={`/event/${event.slug}/commander`}>
-                <button className="group px-10 md:px-12 py-5 md:py-6 rounded-full text-lg md:text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300">
-                  <span className="flex items-center gap-3">
-                    <Wine className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                    Découvrir la sélection
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </span>
-                </button>
-              </Link>
+              <button
+                onClick={() => {
+                  const productsSection = document.getElementById('products-section')
+                  if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+                  }
+                }}
+                className="group px-10 md:px-12 py-5 md:py-6 rounded-full text-lg md:text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300"
+              >
+                <span className="flex items-center gap-3">
+                  <Wine className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                  Découvrir la sélection
+                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </button>
             </div>
           </div>
         </div>
@@ -187,7 +210,7 @@ export default function EventTemplateCremant({
 
       {/* Products Section - Priority */}
       {activeProducts.length > 0 && (
-        <section className="py-20 md:py-28 bg-white">
+        <section id="products-section" className="py-20 md:py-28 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-700 to-amber-700 text-white rounded-full px-5 py-2 mb-4 font-semibold text-sm animate-fade-in">
@@ -203,12 +226,43 @@ export default function EventTemplateCremant({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {/* Carousel Container */}
+            <div className="relative">
+              {/* Navigation Buttons */}
+              {activeProducts.length > 1 && (
+                <>
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-xl rounded-full p-3 transition-all duration-300 hover:scale-110 hidden md:block"
+                    aria-label="Produit précédent"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-gray-800" />
+                  </button>
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-xl rounded-full p-3 transition-all duration-300 hover:scale-110 hidden md:block"
+                    aria-label="Produit suivant"
+                  >
+                    <ChevronRight className="w-6 h-6 text-gray-800" />
+                  </button>
+                </>
+              )}
+
+              {/* Carousel */}
+              <div
+                ref={carouselRef}
+                className="flex overflow-x-auto gap-6 md:gap-10 pb-4 snap-x snap-mandatory"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                  WebkitOverflowScrolling: 'touch',
+                }}
+              >
               {activeProducts.map((product, index) => (
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product)}
-                  className="group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl"
+                  className="group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[85%] md:w-[45%] lg:w-[30%] snap-start"
                   style={{
                     animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
                   }}
@@ -345,6 +399,25 @@ export default function EventTemplateCremant({
                   <div className="h-1 bg-gradient-to-r from-transparent via-amber-600/20 to-transparent group-hover:via-amber-600/40 transition-all duration-500"></div>
                 </div>
               ))}
+              </div>
+            </div>
+
+            {/* CTA Button - Commander */}
+            <div className="mt-16 text-center">
+              <Link href={`/event/${event.slug}/commander`}>
+                <button className="group px-12 py-5 rounded-full text-lg font-bold bg-gradient-to-r from-emerald-600 to-amber-600 text-white shadow-2xl hover:shadow-emerald-500/50 hover:scale-105 transition-all duration-300">
+                  <span className="flex items-center gap-3">
+                    <Wine className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                    Je passe commande
+                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </span>
+                </button>
+              </Link>
+              <p className="mt-4 text-sm text-gray-600">
+                Livraison gratuite dès 10 bouteilles • Paiement sécurisé
+              </p>
             </div>
           </div>
         </section>

@@ -1121,7 +1121,6 @@ export default function EventDetailPage() {
                             <td className="px-4 py-3">
                               <Link
                                 href={`/admin/scan/${order.code}`}
-                                target="_blank"
                                 className="font-mono text-sm text-amber-600 hover:text-amber-700"
                               >
                                 {order.code}

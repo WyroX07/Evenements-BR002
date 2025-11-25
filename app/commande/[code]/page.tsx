@@ -189,11 +189,13 @@ export default function OrderDetailsPage() {
   }
 
   // Calculate subtotal
-  const subtotal = order.items.reduce(
+  const subtotal = order.subtotal_cents || order.items.reduce(
     (sum, item) => sum + item.unit_price_cents * item.quantity,
     0
   )
-  const discount = subtotal - order.total_cents
+  const discount = order.discount_cents || 0
+  const promoDiscount = order.promo_discount_cents || 0
+  const deliveryFee = order.delivery_fee_cents || 0
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50">
@@ -342,10 +344,30 @@ export default function OrderDetailsPage() {
                     {discount > 0 && (
                       <tr>
                         <td colSpan={3} className="py-2 text-right text-green-600">
-                          Remise 10 pour 9 :
+                          Remise 12 pour 11 :
                         </td>
                         <td className="py-2 text-right font-medium text-green-600">
                           -{formatPrice(discount)}
+                        </td>
+                      </tr>
+                    )}
+                    {promoDiscount > 0 && (
+                      <tr>
+                        <td colSpan={3} className="py-2 text-right text-amber-600">
+                          Code promo {order.promo_code} :
+                        </td>
+                        <td className="py-2 text-right font-medium text-amber-600">
+                          -{formatPrice(promoDiscount)}
+                        </td>
+                      </tr>
+                    )}
+                    {deliveryFee > 0 && (
+                      <tr>
+                        <td colSpan={3} className="py-2 text-right text-gray-600">
+                          Frais de livraison :
+                        </td>
+                        <td className="py-2 text-right font-medium text-gray-900">
+                          {formatPrice(deliveryFee)}
                         </td>
                       </tr>
                     )}

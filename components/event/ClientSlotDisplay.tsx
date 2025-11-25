@@ -108,7 +108,7 @@ export default function ClientSlotDisplay({
   const getSectionTitle = () => {
     switch (eventType) {
       case 'PRODUCT_SALE':
-        return 'Choisissez votre créneau de retrait'
+        return 'Créneaux de retrait au local'
       case 'MEAL':
         return 'Dates disponibles'
       case 'RAFFLE':
@@ -150,7 +150,7 @@ export default function ClientSlotDisplay({
           </h2>
           <p className="text-gray-600 text-sm md:text-base max-w-2xl mx-auto">
             {eventType === 'PRODUCT_SALE' &&
-              'Sélectionnez le créneau qui vous convient pour récupérer votre commande'}
+              'Visualisez ci-dessous les créneaux disponibles pour retirer votre commande au local'}
             {eventType === 'MEAL' && 'Choisissez la date qui vous convient'}
             {eventType === 'RAFFLE' && 'Dates où les tirages auront lieu'}
           </p>
@@ -344,13 +344,23 @@ export default function ClientSlotDisplay({
         </div>
 
         {/* Help text */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Les créneaux affichés correspondent aux dates et heures où vous pourrez récupérer votre
-            commande.
-            <br />
-            Le choix définitif se fera lors de votre commande.
-          </p>
+        <div className="mt-8 text-center space-y-4">
+          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 max-w-3xl mx-auto">
+            <p className="text-sm text-blue-900 font-medium mb-2">
+              📦 Retrait au local
+            </p>
+            <p className="text-sm text-blue-800">
+              Les créneaux ci-dessus correspondent aux dates et heures où vous pourrez retirer votre commande au local. Vous choisirez votre créneau lors de la commande.
+            </p>
+          </div>
+          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 max-w-3xl mx-auto">
+            <p className="text-sm text-amber-900 font-medium mb-2">
+              🚗 Livraison à domicile
+            </p>
+            <p className="text-sm text-amber-800">
+              Les livraisons se feront le 20, 21 ou 22 décembre en fonction de nos disponibilités et de vos préférences. Les horaires sont variables et seront convenus avec vous.
+            </p>
+          </div>
         </div>
       </div>
     </section>

@@ -154,7 +154,7 @@ export function generateOrderConfirmationHTML(data: OrderConfirmationData): stri
                   </tr>
                   ${data.discount && data.discount > 0 ? `
                   <tr>
-                    <td colspan="3" style="text-align: right; padding: 8px 0; font-size: 14px; color: #10b981;">Remise 10 pour 9 :</td>
+                    <td colspan="3" style="text-align: right; padding: 8px 0; font-size: 14px; color: #10b981;">Remise 12 pour 11 :</td>
                     <td style="text-align: right; padding: 8px 0; font-size: 14px; font-weight: 600; color: #10b981;">-${formatPrice(data.discount)}</td>
                   </tr>
                   ` : ''}

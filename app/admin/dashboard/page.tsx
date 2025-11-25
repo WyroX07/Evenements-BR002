@@ -227,7 +227,7 @@ export default function AdminDashboardPage() {
                   Codes promo
                 </Button>
               </Link>
-              <Link href="/">
+              <Link href="/" target="_blank">
                 <Button variant="secondary" size="sm">
                   Voir le site
                 </Button>

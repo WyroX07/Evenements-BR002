@@ -1,6 +1,6 @@
 /**
  * Logique de calcul des montants de commande
- * Gestion de la remise "10 pour 9" et des frais de livraison
+ * Gestion de la remise "12 pour 11" (2 caisses = 1 bouteille offerte) et des frais de livraison
  */
 
 interface CartItem {
@@ -19,7 +19,7 @@ interface OrderTotals {
 /**
  * Calcule les totaux d'une commande
  * @param items Lignes de commande
- * @param applyDiscount Appliquer la remise 10=9
+ * @param applyDiscount Appliquer la remise 12=11
  * @param deliveryFeeCents Frais de livraison (0 si retrait)
  * @returns Totaux calculés
  */
@@ -33,10 +33,10 @@ export function calculateOrderTotals(
     return sum + item.qty * item.unitPriceCents
   }, 0)
 
-  // Calcul de la remise "10 pour 9"
+  // Calcul de la remise "12 pour 11"
   let discountCents = 0
   if (applyDiscount) {
-    discountCents = calculate10for9Discount(items)
+    discountCents = calculate12for11Discount(items)
   }
 
   // Total final
@@ -51,23 +51,23 @@ export function calculateOrderTotals(
 }
 
 /**
- * Calcule la remise "10 bouteilles pour le prix de 9"
+ * Calcule la remise "12 bouteilles pour le prix de 11" (2 caisses = 1 bouteille offerte)
  * Algorithme :
  * 1. Calculer le nombre total de bouteilles
- * 2. Pour chaque groupe de 10 bouteilles, offrir la moins chère
- * 3. Approche simplifiée : discount = (total_qty / 10) * prix_unitaire_min
+ * 2. Pour chaque groupe de 12 bouteilles (2 caisses), offrir la moins chère
+ * 3. Approche simplifiée : discount = (total_qty / 12) * prix_unitaire_min
  *
  * @param items Lignes de commande
  * @returns Montant de la remise en centimes
  */
-export function calculate10for9Discount(items: CartItem[]): number {
+export function calculate12for11Discount(items: CartItem[]): number {
   if (items.length === 0) return 0
 
   // Total de bouteilles commandées
   const totalBottles = items.reduce((sum, item) => sum + item.qty, 0)
 
-  // Nombre de groupes de 10
-  const groups = Math.floor(totalBottles / 10)
+  // Nombre de groupes de 12 (2 caisses de 6)
+  const groups = Math.floor(totalBottles / 12)
 
   if (groups === 0) return 0
 
@@ -76,6 +76,13 @@ export function calculate10for9Discount(items: CartItem[]): number {
 
   // Remise = nombre de groupes × prix le moins cher
   return groups * minUnitPrice
+}
+
+/**
+ * @deprecated Utilisez calculate12for11Discount à la place
+ */
+export function calculate10for9Discount(items: CartItem[]): number {
+  return calculate12for11Discount(items)
 }
 
 /**

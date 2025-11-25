@@ -50,6 +50,11 @@ interface Order {
   delivery_address: string | null
   payment_method: 'BANK_TRANSFER' | 'ON_SITE'
   payment_communication: string
+  subtotal_cents?: number
+  discount_cents?: number
+  promo_discount_cents?: number
+  promo_code?: string | null
+  delivery_fee_cents?: number
   total_cents: number
   status: 'PENDING' | 'PAID' | 'PREPARED' | 'DELIVERED' | 'CANCELLED'
   created_at: string
@@ -196,11 +201,11 @@ export default function AdminScanPage({ params }: { params: Promise<{ code: stri
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
           <button
-            onClick={() => router.push('/admin/dashboard')}
+            onClick={() => router.push(`/admin/events/${order.event.id}?tab=orders`)}
             className="text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-2"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span>Retour</span>
+            <span>Retour aux commandes</span>
           </button>
           <div className="text-sm text-gray-500">
             Admin - Scan de commande
@@ -269,8 +274,40 @@ export default function AdminScanPage({ params }: { params: Promise<{ code: stri
                 </div>
               ))}
             </div>
-            <div className="mt-4 pt-4 border-t-2 border-gray-200">
-              <div className="flex justify-between items-center">
+            <div className="mt-4 pt-4 border-t-2 border-gray-200 space-y-2">
+              {order.subtotal_cents !== undefined && order.subtotal_cents > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <p className="text-gray-600">Sous-total</p>
+                  <p className="font-medium text-gray-900">
+                    {formatPrice(order.subtotal_cents)}
+                  </p>
+                </div>
+              )}
+              {order.discount_cents !== undefined && order.discount_cents > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <p className="text-green-600">Remise 12 pour 11</p>
+                  <p className="font-medium text-green-600">
+                    -{formatPrice(order.discount_cents)}
+                  </p>
+                </div>
+              )}
+              {order.promo_discount_cents !== undefined && order.promo_discount_cents > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <p className="text-amber-600">Code promo {order.promo_code}</p>
+                  <p className="font-medium text-amber-600">
+                    -{formatPrice(order.promo_discount_cents)}
+                  </p>
+                </div>
+              )}
+              {order.delivery_fee_cents !== undefined && order.delivery_fee_cents > 0 && (
+                <div className="flex justify-between items-center text-sm">
+                  <p className="text-gray-600">Frais de livraison</p>
+                  <p className="font-medium text-gray-900">
+                    {formatPrice(order.delivery_fee_cents)}
+                  </p>
+                </div>
+              )}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-200">
                 <p className="text-lg font-semibold text-gray-900">Total</p>
                 <p className="text-2xl font-bold text-amber-600">
                   {formatPrice(order.total_cents)}
