@@ -1368,27 +1368,29 @@ export default function EventDetailPage() {
       </main>
 
       {/* Event Info Modal */}
-      <Modal
-        isOpen={isEventInfoModalOpen}
-        onClose={() => setIsEventInfoModalOpen(false)}
-        title="Modifier les informations de l'événement"
-        size="lg"
-      >
-        <EventInfoForm
-          initialValues={event ? {
-            name: event.name,
-            description: event.description,
-            start_date: event.start_date,
-            end_date: event.end_date,
-            pickup_address: event.config?.pickup_address || '',
-            delivery_fee_cents: event.config?.delivery_fee_cents || 0,
-            delivery_min_bottles: event.config?.delivery_min_bottles || 0,
-          } : undefined}
-          onSubmit={handleUpdateEventInfo}
-          onCancel={() => setIsEventInfoModalOpen(false)}
-          submitLabel="Mettre à jour"
-        />
-      </Modal>
+      {event && (
+        <Modal
+          isOpen={isEventInfoModalOpen}
+          onClose={() => setIsEventInfoModalOpen(false)}
+          title="Modifier les informations de l'événement"
+          size="lg"
+        >
+          <EventInfoForm
+            initialValues={{
+              name: event.name,
+              description: event.description,
+              start_date: event.start_date,
+              end_date: event.end_date,
+              pickup_address: event.config?.pickup_address || '',
+              delivery_fee_cents: event.config?.delivery_fee_cents || 0,
+              delivery_min_bottles: event.config?.delivery_min_bottles || 0,
+            }}
+            onSubmit={handleUpdateEventInfo}
+            onCancel={() => setIsEventInfoModalOpen(false)}
+            submitLabel="Mettre à jour"
+          />
+        </Modal>
+      )}
 
       {/* Product Modal */}
       <Modal
