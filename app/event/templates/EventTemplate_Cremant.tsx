@@ -233,14 +233,14 @@ export default function EventTemplateCremant({
                 <>
                   <button
                     onClick={() => scrollCarousel('left')}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-xl rounded-full p-3 transition-all duration-300 hover:scale-110 hidden md:block"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 hidden md:block border border-gray-200"
                     aria-label="Produit précédent"
                   >
                     <ChevronLeft className="w-6 h-6 text-gray-800" />
                   </button>
                   <button
                     onClick={() => scrollCarousel('right')}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-xl rounded-full p-3 transition-all duration-300 hover:scale-110 hidden md:block"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 hidden md:block border border-gray-200"
                     aria-label="Produit suivant"
                   >
                     <ChevronRight className="w-6 h-6 text-gray-800" />
@@ -248,10 +248,14 @@ export default function EventTemplateCremant({
                 </>
               )}
 
+              {/* Fade overlays on sides */}
+              <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none hidden md:block"></div>
+              <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none hidden md:block"></div>
+
               {/* Carousel */}
               <div
                 ref={carouselRef}
-                className="flex overflow-x-auto gap-6 md:gap-10 pb-4 snap-x snap-mandatory"
+                className="flex overflow-x-auto gap-6 md:gap-10 pb-4 snap-x snap-mandatory md:snap-center px-4 md:px-0"
                 style={{
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
@@ -416,7 +420,7 @@ export default function EventTemplateCremant({
                 </button>
               </Link>
               <p className="mt-4 text-sm text-gray-600">
-                Livraison gratuite dès 10 bouteilles • Paiement sécurisé
+                Livraison gratuite dès 6 bouteilles • Paiement sécurisé
               </p>
             </div>
           </div>

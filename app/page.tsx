@@ -2,6 +2,10 @@ import Link from 'next/link'
 import { Calendar, MapPin, ShoppingBag } from 'lucide-react'
 import { createServerClient } from '@/lib/supabase/server'
 
+// Force dynamic rendering to avoid caching issues
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 interface Section {
   id: string
   name: string

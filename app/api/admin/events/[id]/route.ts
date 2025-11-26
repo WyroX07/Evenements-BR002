@@ -210,7 +210,17 @@ export async function PATCH(
       .from('events')
       .update(updateData)
       .eq('id', id)
-      .select()
+      .select(`
+        *,
+        section:sections(
+          id,
+          name,
+          slug,
+          color,
+          iban,
+          iban_name
+        )
+      `)
       .single()
 
     if (updateError) {
