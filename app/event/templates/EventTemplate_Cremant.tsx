@@ -252,13 +252,13 @@ export default function EventTemplateCremant({
 
             {/* Carousel Container */}
             <div className="relative overflow-hidden">
-              {/* Navigation Buttons */}
+              {/* Navigation Buttons - Desktop only */}
               {activeProducts.length > 1 && (
                 <>
                   <button
                     onClick={() => scrollCarousel('left')}
                     disabled={currentSlide === 0}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+                    className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit précédent"
                   >
                     <ChevronLeft className="w-6 h-6 text-gray-800" />
@@ -266,7 +266,7 @@ export default function EventTemplateCremant({
                   <button
                     onClick={() => scrollCarousel('right')}
                     disabled={currentSlide === activeProducts.length - 1}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+                    className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit suivant"
                   >
                     <ChevronRight className="w-6 h-6 text-gray-800" />
@@ -274,14 +274,14 @@ export default function EventTemplateCremant({
                 </>
               )}
 
-              {/* Fade overlays on sides - plus larges et plus forts */}
-              <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+              {/* Fade overlays on sides - Desktop only */}
+              <div className="hidden md:block absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+              <div className="hidden md:block absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
 
-              {/* Carousel - centré avec éléments visibles sur les côtés */}
+              {/* Carousel - Desktop version (centré avec éléments visibles sur les côtés) */}
               <div
                 ref={carouselRef}
-                className="flex overflow-x-auto gap-10 pb-4 snap-x snap-mandatory scroll-smooth"
+                className="hidden md:flex overflow-x-auto gap-10 pb-4 snap-x snap-mandatory scroll-smooth"
                 style={{
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
@@ -294,7 +294,7 @@ export default function EventTemplateCremant({
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product)}
-                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[85vw] sm:w-[420px] md:w-[450px] lg:w-[500px] snap-center"
+                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[420px] md:w-[450px] lg:w-[500px] snap-center"
                   style={{
                     animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
                   }}
@@ -431,6 +431,95 @@ export default function EventTemplateCremant({
                   <div className="h-1 bg-gradient-to-r from-transparent via-amber-600/20 to-transparent group-hover:via-amber-600/40 transition-all duration-500"></div>
                 </div>
               ))}
+              </div>
+
+              {/* Mobile Carousel - 3D Perspective */}
+              <div className="md:hidden" style={{ perspective: '1000px', perspectiveOrigin: 'center' }}>
+                <div
+                  ref={carouselRef}
+                  className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scroll-smooth px-8"
+                  style={{
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  {activeProducts.map((product, index) => (
+                    <div
+                      key={product.id}
+                      onClick={() => handleProductClick(product)}
+                      className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 active:border-amber-600/30 transition-all duration-300 cursor-pointer shadow-lg active:shadow-xl flex-shrink-0 w-[80vw] snap-center"
+                      style={{
+                        transformStyle: 'preserve-3d',
+                        animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
+                      }}
+                    >
+                      {/* Decorative top line */}
+                      <div className="h-px bg-gradient-to-r from-transparent via-amber-600/50 to-transparent"></div>
+
+                      {/* Compact Image Container */}
+                      <div className="relative aspect-[3/4] overflow-hidden bg-gradient-to-br from-stone-50 to-amber-50/10">
+                        {product.image_url && (
+                          <img
+                            src={product.image_url}
+                            alt={product.name}
+                            className="w-full h-full object-contain p-3"
+                          />
+                        )}
+
+                        {/* Badges */}
+                        {product.highlight_badge && (
+                          <div className="absolute top-0 left-0">
+                            <div className="relative bg-gradient-to-br from-amber-600 to-amber-700 text-white px-3 py-1 shadow-lg">
+                              <div className="flex items-center gap-1">
+                                <Sparkles className="w-3 h-3" />
+                                <span className="text-[9px] font-semibold tracking-widest uppercase">{product.highlight_badge}</span>
+                              </div>
+                              <div className="absolute -bottom-1 left-0 w-0 h-0 border-t-[4px] border-t-amber-900 border-r-[4px] border-r-transparent"></div>
+                            </div>
+                          </div>
+                        )}
+
+                        {product.vintage && (
+                          <div className="absolute bottom-2 left-2 bg-stone-900/95 backdrop-blur-sm text-white px-3 py-1.5 border-l-2 border-amber-600">
+                            <div className="text-[8px] tracking-widest uppercase text-stone-400">Millésime</div>
+                            <div className="text-lg font-light tracking-tight" style={{ fontFamily: 'Georgia, serif' }}>{product.vintage}</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Compact Content */}
+                      <div className="p-4 space-y-3">
+                        <div>
+                          <h3 className="text-lg font-light text-stone-900 mb-1 line-clamp-2" style={{ fontFamily: 'Georgia, serif' }}>
+                            {product.name}
+                          </h3>
+                          {product.producer && (
+                            <div className="flex items-center gap-1.5 text-xs text-stone-600">
+                              <Wine className="w-3 h-3 text-amber-600" />
+                              <span className="font-medium">{product.producer}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Prix compact */}
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-2xl font-light text-amber-700" style={{ fontFamily: 'Georgia, serif' }}>
+                            {(product.price_cents / 100).toFixed(2)}€
+                          </span>
+                        </div>
+
+                        {/* Tap to see more */}
+                        <div className="text-xs text-center text-amber-600 font-medium pt-2 border-t border-stone-200/50">
+                          Toucher pour voir plus
+                        </div>
+                      </div>
+
+                      {/* Decorative bottom accent */}
+                      <div className="h-1 bg-gradient-to-r from-transparent via-amber-600/20 to-transparent"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Carousel indicators */}
