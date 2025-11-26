@@ -91,6 +91,9 @@ export default function EventTemplateCremant({
   const carouselRef = useRef<HTMLDivElement>(null)
   const mobileCarouselRef = useRef<HTMLDivElement>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [autoPlayProgress, setAutoPlayProgress] = useState(0)
+  const autoPlayIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product)
@@ -127,20 +130,27 @@ export default function EventTemplateCremant({
   }
 
   const scrollToSlide = (index: number) => {
-    const desktopCarousel = carouselRef.current
-    const mobileCarousel = mobileCarouselRef.current
-    const carousel = desktopCarousel || mobileCarousel
+    // Déterminer quel carousel est visible (mobile ou desktop)
+    const isMobile = window.innerWidth < 768
+    const carousel = isMobile ? mobileCarouselRef.current : carouselRef.current
 
     if (carousel) {
-      const cardWidth = carousel.querySelector('.carousel-card, .mobile-carousel-card')?.clientWidth || 0
-      const gap = desktopCarousel ? 40 : 24
-      const scrollAmount = (cardWidth + gap) * index
+      const cards = carousel.querySelectorAll(isMobile ? '.mobile-carousel-card' : '.carousel-card')
+      const targetCard = cards[index] as HTMLElement
 
-      carousel.scrollTo({
-        left: scrollAmount,
-        behavior: 'smooth'
-      })
-      setCurrentSlide(index)
+      if (targetCard) {
+        // Scroll to the target card (snap-center will handle centering)
+        const cardLeft = targetCard.offsetLeft
+        const gap = isMobile ? 24 : 40
+        const scrollAmount = cardLeft - gap
+
+        carousel.scrollTo({
+          left: scrollAmount,
+          behavior: 'smooth'
+        })
+
+        setCurrentSlide(index)
+      }
     }
   }
 
@@ -159,44 +169,101 @@ export default function EventTemplateCremant({
 
   const activeProducts = products.filter((p) => p.is_active).sort((a, b) => a.sort_order - b.sort_order)
 
-  // 3D carousel effect on scroll for mobile
+  // Smooth carousel scroll tracking for mobile
   useEffect(() => {
     const handleScroll = () => {
-      if (!mobileCarouselRef.current) return
-
       const container = mobileCarouselRef.current
+      if (!container) return
+
       const cards = container.querySelectorAll('.mobile-carousel-card')
       const containerCenter = container.scrollLeft + container.offsetWidth / 2
 
+      // Update current slide indicator based on scroll position
+      const cardWidth = cards[0] ? (cards[0] as HTMLElement).offsetWidth : 0
+      const gap = 24
+      const newSlide = Math.round(container.scrollLeft / (cardWidth + gap))
+      setCurrentSlide(Math.max(0, Math.min(activeProducts.length - 1, newSlide)))
+
+      // Apply smooth scale/opacity with CSS for GPU acceleration
       cards.forEach((card: Element) => {
         const htmlCard = card as HTMLElement
         const cardCenter = htmlCard.offsetLeft + htmlCard.offsetWidth / 2
-        const distance = cardCenter - containerCenter
-        const maxDistance = container.offsetWidth
+        const distance = Math.abs(cardCenter - containerCenter)
+        const maxDistance = container.offsetWidth / 2
 
-        // Calculate rotation and scale based on distance from center
-        const rotateY = (distance / maxDistance) * 45 // Max 45deg rotation
-        const scale = 1 - Math.abs(distance / maxDistance) * 0.15 // Scale between 0.85 and 1
-        const opacity = 1 - Math.abs(distance / maxDistance) * 0.3 // Opacity between 0.7 and 1
+        // Normalize distance (0 = center, 1 = far)
+        const normalizedDistance = Math.min(distance / maxDistance, 1)
 
-        htmlCard.style.transform = `
-          perspective(1000px)
-          rotateY(${rotateY}deg)
-          scale(${scale})
-          translateZ(${Math.abs(rotateY) * -2}px)
-        `
-        htmlCard.style.opacity = opacity.toString()
+        // Smooth scale (0.88 to 1) - centered card is biggest
+        const scale = 1 - (normalizedDistance * 0.12)
+        // Smooth opacity (0.6 to 1) - centered card is most visible
+        const opacity = 1 - (normalizedDistance * 0.4)
+
+        // Use CSS custom properties for smooth GPU-accelerated transitions
+        htmlCard.style.setProperty('--scale', scale.toString())
+        htmlCard.style.setProperty('--opacity', opacity.toString())
       })
     }
 
     const container = mobileCarouselRef.current
     if (container) {
-      container.addEventListener('scroll', handleScroll)
+      container.addEventListener('scroll', handleScroll, { passive: true })
       handleScroll() // Initial call
 
-      return () => container.removeEventListener('scroll', handleScroll)
+      return () => {
+        container.removeEventListener('scroll', handleScroll)
+      }
     }
   }, [activeProducts])
+
+  // Auto-play carousel with progress bar
+  useEffect(() => {
+    if (activeProducts.length <= 1) return
+
+    const startAutoPlay = () => {
+      // Clear existing intervals
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current)
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+
+      // Reset progress
+      setAutoPlayProgress(0)
+
+      // Progress animation (60fps for smooth bar)
+      const progressInterval = 1000 / 60 // ~16ms
+      const progressStep = (100 / 5000) * progressInterval // Progress per frame for 5s total
+
+      progressIntervalRef.current = setInterval(() => {
+        setAutoPlayProgress(prev => {
+          if (prev >= 100) return 0
+          return prev + progressStep
+        })
+      }, progressInterval)
+
+      // Slide change every 5 seconds
+      autoPlayIntervalRef.current = setInterval(() => {
+        setCurrentSlide(prev => {
+          const nextSlide = (prev + 1) % activeProducts.length
+          scrollToSlide(nextSlide)
+          return nextSlide
+        })
+        setAutoPlayProgress(0) // Reset progress on slide change
+      }, 5000)
+    }
+
+    startAutoPlay()
+
+    return () => {
+      if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current)
+      if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+    }
+  }, [activeProducts.length])
+
+  // Stop auto-play on user interaction
+  const handleUserInteraction = () => {
+    if (autoPlayIntervalRef.current) clearInterval(autoPlayIntervalRef.current)
+    if (progressIntervalRef.current) clearInterval(progressIntervalRef.current)
+    setAutoPlayProgress(0)
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-green-50">
@@ -478,9 +545,15 @@ export default function EventTemplateCremant({
               </div>
 
               {/* Mobile Carousel - 3D Perspective */}
-              <div className="md:hidden" style={{ perspective: '1200px', perspectiveOrigin: 'center center' }}>
+              <div className="md:hidden relative" style={{ perspective: '1200px', perspectiveOrigin: 'center center' }}>
+                {/* Fade overlays on sides to show adjacent cards */}
+                <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white via-white/50 to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white via-white/50 to-transparent z-10 pointer-events-none"></div>
+
                 <div
                   ref={mobileCarouselRef}
+                  onTouchStart={handleUserInteraction}
+                  onClick={handleUserInteraction}
                   className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scroll-smooth px-8"
                   style={{
                     scrollbarWidth: 'none',
@@ -493,10 +566,12 @@ export default function EventTemplateCremant({
                     <div
                       key={product.id}
                       onClick={() => handleProductClick(product)}
-                      className="mobile-carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 active:border-amber-600/30 transition-all duration-300 cursor-pointer shadow-lg active:shadow-xl flex-shrink-0 w-[80vw] snap-center"
+                      className="mobile-carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 active:border-amber-600/30 cursor-pointer shadow-lg active:shadow-xl flex-shrink-0 w-[80vw] snap-center"
                       style={{
-                        transformStyle: 'preserve-3d',
                         animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
+                        transform: 'scale(var(--scale, 1))',
+                        opacity: 'var(--opacity, 1)',
+                        transition: 'transform 0.1s ease-out, opacity 0.1s ease-out',
                         willChange: 'transform, opacity',
                       }}
                     >
@@ -568,20 +643,41 @@ export default function EventTemplateCremant({
                 </div>
               </div>
 
-              {/* Carousel indicators */}
+              {/* Carousel indicators with progress bar */}
               {activeProducts.length > 1 && (
                 <div className="flex justify-center gap-2 mt-8">
                   {activeProducts.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => scrollToSlide(index)}
-                      className={`transition-all duration-300 rounded-full ${
+                      onClick={() => {
+                        scrollToSlide(index)
+                        handleUserInteraction()
+                      }}
+                      className={`relative transition-all duration-300 rounded-full overflow-hidden ${
                         currentSlide === index
-                          ? 'w-8 h-2 bg-amber-600'
-                          : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                          ? 'w-12 h-2'
+                          : 'w-2 h-2'
                       }`}
                       aria-label={`Aller au produit ${index + 1}`}
-                    />
+                    >
+                      {/* Background (desaturated amber) */}
+                      <div className={`absolute inset-0 ${
+                        currentSlide === index
+                          ? 'bg-amber-200'
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`} />
+
+                      {/* Progress bar (only for active slide) */}
+                      {currentSlide === index && (
+                        <div
+                          className="absolute inset-0 bg-amber-600 transition-all duration-75 ease-linear"
+                          style={{
+                            width: `${autoPlayProgress}%`,
+                            transformOrigin: 'left'
+                          }}
+                        />
+                      )}
+                    </button>
                   ))}
                 </div>
               )}
