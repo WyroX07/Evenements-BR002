@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { Calendar, Users, MapPin, Wine, Sparkles, Award, Gift, Heart, PlayCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import Button from '@/components/ui/Button'
@@ -89,6 +89,7 @@ export default function EventTemplateCremant({
 
   // Carousel state
   const carouselRef = useRef<HTMLDivElement>(null)
+  const mobileCarouselRef = useRef<HTMLDivElement>(null)
   const [currentSlide, setCurrentSlide] = useState(0)
 
   const handleProductClick = (product: Product) => {
@@ -126,12 +127,16 @@ export default function EventTemplateCremant({
   }
 
   const scrollToSlide = (index: number) => {
-    if (carouselRef.current) {
-      const cardWidth = carouselRef.current.querySelector('.carousel-card')?.clientWidth || 0
-      const gap = 40
+    const desktopCarousel = carouselRef.current
+    const mobileCarousel = mobileCarouselRef.current
+    const carousel = desktopCarousel || mobileCarousel
+
+    if (carousel) {
+      const cardWidth = carousel.querySelector('.carousel-card, .mobile-carousel-card')?.clientWidth || 0
+      const gap = desktopCarousel ? 40 : 24
       const scrollAmount = (cardWidth + gap) * index
 
-      carouselRef.current.scrollTo({
+      carousel.scrollTo({
         left: scrollAmount,
         behavior: 'smooth'
       })
@@ -153,6 +158,45 @@ export default function EventTemplateCremant({
   }
 
   const activeProducts = products.filter((p) => p.is_active).sort((a, b) => a.sort_order - b.sort_order)
+
+  // 3D carousel effect on scroll for mobile
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!mobileCarouselRef.current) return
+
+      const container = mobileCarouselRef.current
+      const cards = container.querySelectorAll('.mobile-carousel-card')
+      const containerCenter = container.scrollLeft + container.offsetWidth / 2
+
+      cards.forEach((card: Element) => {
+        const htmlCard = card as HTMLElement
+        const cardCenter = htmlCard.offsetLeft + htmlCard.offsetWidth / 2
+        const distance = cardCenter - containerCenter
+        const maxDistance = container.offsetWidth
+
+        // Calculate rotation and scale based on distance from center
+        const rotateY = (distance / maxDistance) * 45 // Max 45deg rotation
+        const scale = 1 - Math.abs(distance / maxDistance) * 0.15 // Scale between 0.85 and 1
+        const opacity = 1 - Math.abs(distance / maxDistance) * 0.3 // Opacity between 0.7 and 1
+
+        htmlCard.style.transform = `
+          perspective(1000px)
+          rotateY(${rotateY}deg)
+          scale(${scale})
+          translateZ(${Math.abs(rotateY) * -2}px)
+        `
+        htmlCard.style.opacity = opacity.toString()
+      })
+    }
+
+    const container = mobileCarouselRef.current
+    if (container) {
+      container.addEventListener('scroll', handleScroll)
+      handleScroll() // Initial call
+
+      return () => container.removeEventListener('scroll', handleScroll)
+    }
+  }, [activeProducts])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-green-50">
@@ -434,24 +478,26 @@ export default function EventTemplateCremant({
               </div>
 
               {/* Mobile Carousel - 3D Perspective */}
-              <div className="md:hidden" style={{ perspective: '1000px', perspectiveOrigin: 'center' }}>
+              <div className="md:hidden" style={{ perspective: '1200px', perspectiveOrigin: 'center center' }}>
                 <div
-                  ref={carouselRef}
+                  ref={mobileCarouselRef}
                   className="flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory scroll-smooth px-8"
                   style={{
                     scrollbarWidth: 'none',
                     msOverflowStyle: 'none',
                     WebkitOverflowScrolling: 'touch',
+                    transformStyle: 'preserve-3d',
                   }}
                 >
                   {activeProducts.map((product, index) => (
                     <div
                       key={product.id}
                       onClick={() => handleProductClick(product)}
-                      className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 active:border-amber-600/30 transition-all duration-300 cursor-pointer shadow-lg active:shadow-xl flex-shrink-0 w-[80vw] snap-center"
+                      className="mobile-carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 active:border-amber-600/30 transition-all duration-300 cursor-pointer shadow-lg active:shadow-xl flex-shrink-0 w-[80vw] snap-center"
                       style={{
                         transformStyle: 'preserve-3d',
                         animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
+                        willChange: 'transform, opacity',
                       }}
                     >
                       {/* Decorative top line */}
