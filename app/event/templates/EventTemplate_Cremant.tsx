@@ -89,6 +89,7 @@ export default function EventTemplateCremant({
 
   // Carousel state
   const carouselRef = useRef<HTMLDivElement>(null)
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product)
@@ -103,7 +104,10 @@ export default function EventTemplateCremant({
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = carouselRef.current.offsetWidth * 0.8
+      const cardWidth = carouselRef.current.querySelector('.carousel-card')?.clientWidth || 0
+      const gap = 40 // gap entre les cards
+      const scrollAmount = cardWidth + gap
+
       const newScrollPosition = direction === 'left'
         ? carouselRef.current.scrollLeft - scrollAmount
         : carouselRef.current.scrollLeft + scrollAmount
@@ -112,6 +116,26 @@ export default function EventTemplateCremant({
         left: newScrollPosition,
         behavior: 'smooth'
       })
+
+      // Update current slide indicator
+      const newSlide = direction === 'left'
+        ? Math.max(0, currentSlide - 1)
+        : Math.min(activeProducts.length - 1, currentSlide + 1)
+      setCurrentSlide(newSlide)
+    }
+  }
+
+  const scrollToSlide = (index: number) => {
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.querySelector('.carousel-card')?.clientWidth || 0
+      const gap = 40
+      const scrollAmount = (cardWidth + gap) * index
+
+      carouselRef.current.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+      })
+      setCurrentSlide(index)
     }
   }
 
@@ -227,20 +251,22 @@ export default function EventTemplateCremant({
             </div>
 
             {/* Carousel Container */}
-            <div className="relative">
+            <div className="relative overflow-hidden">
               {/* Navigation Buttons */}
               {activeProducts.length > 1 && (
                 <>
                   <button
                     onClick={() => scrollCarousel('left')}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 hidden md:block border border-gray-200"
+                    disabled={currentSlide === 0}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit précédent"
                   >
                     <ChevronLeft className="w-6 h-6 text-gray-800" />
                   </button>
                   <button
                     onClick={() => scrollCarousel('right')}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 hidden md:block border border-gray-200"
+                    disabled={currentSlide === activeProducts.length - 1}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit suivant"
                   >
                     <ChevronRight className="w-6 h-6 text-gray-800" />
@@ -248,25 +274,27 @@ export default function EventTemplateCremant({
                 </>
               )}
 
-              {/* Fade overlays on sides */}
-              <div className="absolute left-0 top-0 bottom-4 w-32 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none hidden md:block"></div>
-              <div className="absolute right-0 top-0 bottom-4 w-32 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none hidden md:block"></div>
+              {/* Fade overlays on sides - plus larges et plus forts */}
+              <div className="absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
 
-              {/* Carousel */}
+              {/* Carousel - centré avec éléments visibles sur les côtés */}
               <div
                 ref={carouselRef}
-                className="flex overflow-x-auto gap-6 md:gap-10 pb-4 snap-x snap-mandatory md:snap-center px-4 md:px-0"
+                className="flex overflow-x-auto gap-10 pb-4 snap-x snap-mandatory scroll-smooth"
                 style={{
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
                   WebkitOverflowScrolling: 'touch',
+                  paddingLeft: 'max(1rem, calc((100vw - 500px) / 2))',
+                  paddingRight: 'max(1rem, calc((100vw - 500px) / 2))',
                 }}
               >
               {activeProducts.map((product, index) => (
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product)}
-                  className="group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[85%] md:w-[45%] lg:w-[30%] snap-start"
+                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[85vw] sm:w-[420px] md:w-[450px] lg:w-[500px] snap-center"
                   style={{
                     animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
                   }}
@@ -404,6 +432,24 @@ export default function EventTemplateCremant({
                 </div>
               ))}
               </div>
+
+              {/* Carousel indicators */}
+              {activeProducts.length > 1 && (
+                <div className="flex justify-center gap-2 mt-8">
+                  {activeProducts.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => scrollToSlide(index)}
+                      className={`transition-all duration-300 rounded-full ${
+                        currentSlide === index
+                          ? 'w-8 h-2 bg-amber-600'
+                          : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
+                      }`}
+                      aria-label={`Aller au produit ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* CTA Button - Commander */}
