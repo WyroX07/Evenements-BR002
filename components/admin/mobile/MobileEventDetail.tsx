@@ -122,6 +122,17 @@ export default function MobileEventDetail({
     return badges[status as keyof typeof badges] || badges.DRAFT
   }
 
+  const getOrderStatusBadge = (status: string) => {
+    const badges = {
+      PENDING: { label: 'En attente', color: 'bg-amber-100 text-amber-700', dotColor: 'bg-amber-500' },
+      PAID: { label: 'Payé', color: 'bg-blue-100 text-blue-700', dotColor: 'bg-blue-500' },
+      PREPARED: { label: 'Préparé', color: 'bg-purple-100 text-purple-700', dotColor: 'bg-purple-500' },
+      DELIVERED: { label: 'Livré', color: 'bg-green-100 text-green-700', dotColor: 'bg-green-500' },
+      CANCELLED: { label: 'Annulé', color: 'bg-red-100 text-red-700', dotColor: 'bg-red-500' },
+    }
+    return badges[status as keyof typeof badges] || badges.PENDING
+  }
+
   const statusBadge = getStatusBadge(event.status)
   const totalRevenue = orders.reduce((sum, order) => sum + order.total_cents, 0)
 
@@ -314,29 +325,41 @@ export default function MobileEventDetail({
             </div>
           ) : (
             <div className="space-y-2">
-              {orders.slice(0, 5).map((order) => (
-                <button
-                  key={order.id}
-                  onClick={() => router.push(`/admin/orders/${order.id}`)}
-                  className="w-full bg-white border border-gray-200 rounded-lg p-3 text-left active:bg-gray-50 flex items-center gap-3"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <p className="font-medium text-gray-900 text-sm">{order.customer_name}</p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {formatPrice(order.total_cents)}
-                      </p>
+              {orders.slice(0, 5).map((order) => {
+                const orderStatusBadge = getOrderStatusBadge(order.status)
+                return (
+                  <button
+                    key={order.id}
+                    onClick={() => router.push(`/admin/orders/${order.id}`)}
+                    className="w-full bg-white border border-gray-200 rounded-lg p-3 text-left active:bg-gray-50"
+                  >
+                    <div className="flex items-center gap-3">
+                      {/* Status indicator dot */}
+                      <div className={`w-2 h-2 rounded-full flex-shrink-0 ${orderStatusBadge.dotColor}`} />
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-medium text-gray-900 text-sm truncate pr-2">{order.customer_name}</p>
+                          <p className="text-sm font-semibold text-gray-900 flex-shrink-0">
+                            {formatPrice(order.total_cents)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-xs text-gray-500">#{order.code}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${orderStatusBadge.color}`}>
+                            {orderStatusBadge.label}
+                          </span>
+                          <p className="text-xs text-gray-500">
+                            {new Date(order.created_at).toLocaleDateString('fr-BE')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-gray-500">#{order.code}</p>
-                      <p className="text-xs text-gray-500">
-                        {new Date(order.created_at).toLocaleDateString('fr-BE')}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                </button>
-              ))}
+                  </button>
+                )
+              })}
               {orders.length > 5 && (
                 <p className="text-xs text-center text-gray-500 py-2">
                   +{orders.length - 5} autres commandes
