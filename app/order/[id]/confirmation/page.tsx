@@ -41,7 +41,7 @@ interface Order {
   created_at: string
   items: Array<{
     product_name: string
-    quantity: number
+    qty: number // Database column is 'qty', not 'quantity'
     unit_price_cents: number
   }>
   slot?: {
@@ -210,11 +210,11 @@ export default function OrderConfirmationPage() {
                   </div>
                   <div>
                     <p className="font-semibold text-gray-900">{item.product_name}</p>
-                    <p className="text-sm text-gray-500">Quantité : {item.quantity}</p>
+                    <p className="text-sm text-gray-500">Quantité : {item.qty}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-900">{formatPrice(item.unit_price_cents * item.quantity)}</p>
+                  <p className="font-bold text-gray-900">{formatPrice(item.unit_price_cents * item.qty)}</p>
                   <p className="text-xs text-gray-500">{formatPrice(item.unit_price_cents)} / unité</p>
                 </div>
               </div>

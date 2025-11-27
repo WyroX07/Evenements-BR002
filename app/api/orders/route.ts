@@ -288,7 +288,7 @@ export async function POST(request: NextRequest) {
         order_id: order.id,
         product_id: item.cuveeId,
         product_name: product.name, // Add product name for display
-        quantity: item.qty,
+        qty: item.qty, // Database column is 'qty', not 'quantity'
         unit_price_cents: item.unitPriceCents,
         line_total_cents: item.qty * item.unitPriceCents,
       }

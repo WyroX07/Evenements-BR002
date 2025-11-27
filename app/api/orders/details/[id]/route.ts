@@ -60,7 +60,7 @@ export async function GET(
     // Récupérer les items
     const { data: items } = await supabase
       .from('order_items')
-      .select('product_name, quantity, unit_price_cents')
+      .select('product_name, qty, unit_price_cents')
       .eq('order_id', order.id)
 
     // Construire la réponse
