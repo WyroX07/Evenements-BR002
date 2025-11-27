@@ -21,12 +21,15 @@ import {
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
+import ResponsiveModal from '@/components/ui/ResponsiveModal'
 import ProductForm, { ProductFormValues } from '@/components/forms/ProductForm'
 import SlotForm, { SlotFormValues } from '@/components/forms/SlotForm'
 import BulkSlotGeneratorForm, { BulkSlotParams } from '@/components/forms/BulkSlotGeneratorForm'
 import ProductImportModal from '@/components/admin/ProductImportModal'
 import EventInfoForm, { EventInfoFormValues } from '@/components/forms/EventInfoForm'
 import { useToast } from '@/contexts/ToastContext'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import MobileEventDetail from '@/components/admin/mobile/MobileEventDetail'
 
 interface Section {
   id: string
@@ -104,6 +107,7 @@ export default function EventDetailPage() {
   const params = useParams()
   const eventId = params.id as string
   const { addToast } = useToast()
+  const isMobile = useIsMobile()
 
   const [event, setEvent] = useState<Event | null>(null)
   const [products, setProducts] = useState<Product[]>([])
@@ -653,6 +657,125 @@ export default function EventDetailPage() {
     )
   }
 
+  // Mobile version
+  if (isMobile) {
+    return (
+      <>
+        <MobileEventDetail
+          event={event}
+          products={products}
+          slots={slots}
+          orders={orders}
+          onEditEvent={() => setIsEventInfoModalOpen(true)}
+          onDeleteEvent={handleDeleteEvent}
+          onAddProduct={() => openProductModal()}
+          onEditProduct={(product) => openProductModal(product)}
+          onAddSlot={() => openSlotModal()}
+          onExportOrders={handleExportOrders}
+        />
+
+        {/* Product Modal */}
+        <ResponsiveModal
+          isOpen={isProductModalOpen}
+          onClose={closeProductModal}
+          title={editingProduct ? 'Modifier le produit' : 'Nouveau produit'}
+          size="lg"
+        >
+          <ProductForm
+            initialValues={
+              editingProduct
+                ? {
+                    name: editingProduct.name,
+                    description: editingProduct.description || '',
+                    price_cents: editingProduct.price_cents,
+                    product_type: editingProduct.product_type as any,
+                    stock: editingProduct.stock,
+                    is_active: editingProduct.is_active,
+                    sort_order: editingProduct.sort_order,
+                    image_url: editingProduct.image_url || '',
+                    allergens: editingProduct.allergens || [],
+                    is_vegetarian: editingProduct.is_vegetarian || false,
+                    is_vegan: editingProduct.is_vegan || false,
+                    // Wine-specific fields
+                    is_wine: editingProduct.is_wine || false,
+                    vintage: editingProduct.vintage || '',
+                    color: editingProduct.color || '',
+                    aromas: editingProduct.aromas || '',
+                    balance: editingProduct.balance || '',
+                    food_pairings: editingProduct.food_pairings || '',
+                    conservation: editingProduct.conservation || '',
+                    grape_variety: editingProduct.grape_variety || '',
+                    wine_type: editingProduct.wine_type || '',
+                    appellation: editingProduct.appellation || '',
+                    special_mentions: editingProduct.special_mentions || [],
+                    residual_sugar_gl: editingProduct.residual_sugar_gl || null,
+                    limited_stock: editingProduct.limited_stock || false,
+                    highlight_badge: editingProduct.highlight_badge || '',
+                    producer: editingProduct.producer || '',
+                    origin: editingProduct.origin || '',
+                  }
+                : undefined
+            }
+            onSubmit={editingProduct ? handleUpdateProduct : handleCreateProduct}
+            onCancel={closeProductModal}
+            submitText={editingProduct ? 'Mettre à jour' : 'Créer'}
+          />
+        </ResponsiveModal>
+
+        {/* Slot Modal */}
+        {event.event_type === 'MEAL' && (
+          <ResponsiveModal
+            isOpen={isSlotModalOpen}
+            onClose={closeSlotModal}
+            title={editingSlot ? 'Modifier le créneau' : 'Nouveau créneau'}
+            size="md"
+          >
+            <SlotForm
+              initialValues={
+                editingSlot
+                  ? {
+                      date: editingSlot.date,
+                      start_time: editingSlot.start_time,
+                      end_time: editingSlot.end_time,
+                      capacity: editingSlot.capacity,
+                      location: editingSlot.location || '',
+                    }
+                  : undefined
+              }
+              onSubmit={editingSlot ? handleUpdateSlot : handleCreateSlot}
+              onCancel={closeSlotModal}
+              submitText={editingSlot ? 'Mettre à jour' : 'Créer'}
+            />
+          </ResponsiveModal>
+        )}
+
+        {/* Event Info Modal */}
+        <ResponsiveModal
+          isOpen={isEventInfoModalOpen}
+          onClose={() => setIsEventInfoModalOpen(false)}
+          title="Modifier l'événement"
+          size="lg"
+        >
+          <EventInfoForm
+            eventId={event.id}
+            initialValues={{
+              name: event.name,
+              description: event.description,
+              start_date: event.start_date,
+              end_date: event.end_date,
+              status: event.status,
+              config: event.config || {},
+              hero_config: event.hero_config || {},
+            }}
+            onSubmit={handleUpdateEventInfo}
+            onCancel={() => setIsEventInfoModalOpen(false)}
+          />
+        </ResponsiveModal>
+      </>
+    )
+  }
+
+  // Desktop version
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -1284,14 +1407,16 @@ export default function EventDetailPage() {
                           </tr>
                         ) : (
                           filteredOrders.map((order) => (
-                          <tr key={order.id} className="hover:bg-gray-50">
+                          <tr
+                            key={order.id}
+                            onClick={() => router.push(`/admin/orders/${order.id}`)}
+                            className="hover:bg-blue-50 cursor-pointer transition-colors group"
+                            title="Cliquer pour voir les details de la commande"
+                          >
                             <td className="px-4 py-3">
-                              <Link
-                                href={`/admin/scan/${order.code}`}
-                                className="font-mono text-sm text-amber-600 hover:text-amber-700"
-                              >
+                              <span className="font-mono text-sm text-amber-600 group-hover:text-amber-700">
                                 {order.code}
-                              </Link>
+                              </span>
                             </td>
                             <td className="px-4 py-3 text-sm text-gray-900">
                               {order.customer_name}
@@ -1311,7 +1436,7 @@ export default function EventDetailPage() {
                               {formatDateTime(order.created_at)}
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <div className="flex items-center justify-end gap-2">
+                              <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                                 {order.status === 'PENDING' && (
                                   <button
                                     onClick={() => handleUpdateOrderStatus(order.id, 'PAID')}

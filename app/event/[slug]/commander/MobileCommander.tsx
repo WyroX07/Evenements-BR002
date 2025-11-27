@@ -12,6 +12,12 @@ import MobileStickyFooter from './components/MobileStickyFooter'
 import MobileProductCard from './components/MobileProductCard'
 import ProductDetailsModal from './components/ProductDetailsModal'
 
+// Hooks
+import { mobileInputClasses } from './hooks/useMobileInput'
+
+// Utils
+import { formatBelgianPhone } from '@/lib/utils/phoneFormatter'
+
 // Types
 interface Product {
   id: string
@@ -269,7 +275,7 @@ export default function MobileCommander() {
         eventId: event?.id,
         customerName: formData.customerName,
         email: formData.email,
-        phone: formData.phone,
+        phone: formatBelgianPhone(formData.phone || ''), // Format: 04xx/xx.xx.xx
         notes: formData.notes || undefined,
         deliveryType,
         slotId: formData.slotId || null,
@@ -675,8 +681,9 @@ export default function MobileCommander() {
                   type="text"
                   value={formData.customerName || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, customerName: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className={mobileInputClasses}
                   placeholder="Jean Dupont"
+                  autoComplete="name"
                 />
               </div>
 
@@ -689,8 +696,9 @@ export default function MobileCommander() {
                   inputMode="email"
                   value={formData.email || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className={mobileInputClasses}
                   placeholder="jean.dupont@example.com"
+                  autoComplete="email"
                 />
               </div>
 
@@ -703,8 +711,9 @@ export default function MobileCommander() {
                   inputMode="tel"
                   value={formData.phone || ''}
                   onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className={mobileInputClasses}
                   placeholder="+32 123 45 67 89"
+                  autoComplete="tel"
                 />
               </div>
 
@@ -724,8 +733,9 @@ export default function MobileCommander() {
                         type="text"
                         value={formData.address || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className={mobileInputClasses}
                         placeholder="Rue de la Paix, 123"
+                        autoComplete="street-address"
                       />
                     </div>
 
@@ -739,8 +749,9 @@ export default function MobileCommander() {
                           inputMode="numeric"
                           value={formData.zip || ''}
                           onChange={(e) => setFormData(prev => ({ ...prev, zip: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          className={mobileInputClasses}
                           placeholder="1000"
+                          autoComplete="postal-code"
                         />
                       </div>
 
@@ -752,8 +763,9 @@ export default function MobileCommander() {
                           type="text"
                           value={formData.city || ''}
                           onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          className={mobileInputClasses}
                           placeholder="Bruxelles"
+                          autoComplete="address-level2"
                         />
                       </div>
                     </div>

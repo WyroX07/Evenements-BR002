@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import ToastContainer from '@/components/ToastContainer'
@@ -18,6 +18,13 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.png',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1, // Empêche le zoom sur iOS lors du focus sur inputs
+  userScalable: false, // Désactive le pinch-to-zoom (optionnel selon UX)
 }
 
 export default function RootLayout({

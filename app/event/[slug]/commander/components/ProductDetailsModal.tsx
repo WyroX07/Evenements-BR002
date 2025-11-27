@@ -55,6 +55,7 @@ export default function ProductDetailsModal({
   onAddToCart,
 }: ProductDetailsModalProps) {
   const [localQuantity, setLocalQuantity] = React.useState(initialQuantity)
+  const [mouseDownTarget, setMouseDownTarget] = React.useState<EventTarget | null>(null)
 
   useEffect(() => {
     setLocalQuantity(initialQuantity)
@@ -63,14 +64,51 @@ export default function ProductDetailsModal({
   // Bloquer le scroll du body quand la modal est ouverte
   useEffect(() => {
     if (isOpen) {
+      // Empêcher le scroll sur desktop et mobile
       document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
+      document.body.style.position = 'fixed'
+      document.body.style.width = '100%'
+      document.body.style.top = `-${window.scrollY}px`
+
+      // Empêcher le scroll tactile sur iOS
+      const preventScroll = (e: TouchEvent) => {
+        const target = e.target as HTMLElement
+        const modal = document.querySelector('.modal-content')
+
+        // Autoriser le scroll uniquement dans le contenu de la modal
+        if (modal && !modal.contains(target)) {
+          e.preventDefault()
+        }
+      }
+
+      document.addEventListener('touchmove', preventScroll, { passive: false })
+
+      return () => {
+        // Restaurer le scroll
+        const scrollY = document.body.style.top
+        document.body.style.overflow = ''
+        document.body.style.position = ''
+        document.body.style.width = ''
+        document.body.style.top = ''
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+
+        document.removeEventListener('touchmove', preventScroll)
+      }
     }
   }, [isOpen])
+
+  // Gérer le click sur le backdrop avec détection de drag
+  const handleBackdropMouseDown = (e: React.MouseEvent) => {
+    setMouseDownTarget(e.target)
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Ne fermer que si mousedown et mouseup sont sur le même élément (pas de drag)
+    if (e.target === mouseDownTarget && e.target === e.currentTarget) {
+      onClose()
+    }
+    setMouseDownTarget(null)
+  }
 
   if (!isOpen || !product) return null
 
@@ -105,12 +143,13 @@ export default function ProductDetailsModal({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-fadeIn"
-        onClick={onClose}
+        onMouseDown={handleBackdropMouseDown}
+        onClick={handleBackdropClick}
       />
 
       {/* Modal Content - Slide up from bottom */}
       <div className="fixed inset-x-0 bottom-0 z-50 animate-slideUp">
-        <div className="bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto shadow-2xl">
+        <div className="modal-content bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto shadow-2xl">
           {/* Header sticky */}
           <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10">
             <h2 className="text-lg font-bold text-gray-900 pr-8">

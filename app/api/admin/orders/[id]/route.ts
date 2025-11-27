@@ -1,148 +1,105 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
-import { isAdminAuthenticated } from '@/lib/auth'
-import { updateOrderStatusSchema, updateOrderNotesSchema } from '@/lib/validators'
+import { cookies } from 'next/headers'
 import { z } from 'zod'
 
-/**
- * PATCH /api/admin/orders/[id]
- * Met à jour une commande (statut, notes, etc.)
- */
+async function checkAdminAuth() {
+  const cookieStore = await cookies()
+  const adminSession = cookieStore.get('admin_session')
+  if (!adminSession || adminSession.value !== 'authenticated') {
+    return false
+  }
+  return true
+}
+
+const updateOrderSchema = z.object({
+  status: z.enum(['PENDING', 'PAID', 'PREPARED', 'DELIVERED', 'CANCELLED']).optional(),
+})
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    if (!await checkAdminAuth()) {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
+    }
+
+    const { id } = await params
+    const supabase = createServerClient() as any
+
+    const { data: order, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        event:events(
+          id,
+          name,
+          slug,
+          section:sections(
+            id,
+            name,
+            slug,
+            color
+          )
+        ),
+        slot:slots(
+          id,
+          date,
+          start_time,
+          end_time
+        )
+      `)
+      .eq('id', id)
+      .single()
+
+    if (error || !order) {
+      return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
+    }
+
+    const { data: items } = await supabase
+      .from('order_items')
+      .select(`
+        *,
+        product:products(id, name, product_type)
+      `)
+      .eq('order_id', id)
+
+    return NextResponse.json({ order: { ...order, items: items || [] } })
+  } catch (error) {
+    console.error('Error GET order:', error)
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const isAuthenticated = await isAdminAuthenticated()
-    if (!isAuthenticated) {
-      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    if (!await checkAdminAuth()) {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const { id } = await params
     const body = await request.json()
+    const validatedData = updateOrderSchema.parse(body)
     const supabase = createServerClient() as any
 
-    // Déterminer le type de mise à jour
-    if (body.status) {
-      // Changement de statut
-      const { status, override } = updateOrderStatusSchema.parse({ ...body, orderId: id })
+    const { data: order, error } = await supabase
+      .from('orders')
+      .update(validatedData)
+      .eq('id', id)
+      .select()
+      .single()
 
-      // Récupérer la commande actuelle
-      const { data: order, error: fetchError } = await supabase
-        .from('orders')
-        .select('*, slot:slots(capacity)')
-        .eq('id', id)
-        .single()
-
-      if (fetchError || !order) {
-        return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
-      }
-
-      // Vérifications selon le statut cible
-      if (status === 'PAID' && order.slot_id && !override) {
-        // Vérifier la capacité du créneau
-        const { count: slotOrdersCount } = await supabase
-          .from('orders')
-          .select('*', { count: 'exact', head: true })
-          .eq('slot_id', order.slot_id)
-          .in('status', ['PAID', 'PREPARED'])
-          .neq('id', id)
-
-        if ((slotOrdersCount || 0) >= order.slot.capacity) {
-          return NextResponse.json(
-            { error: 'Créneau complet. Utilisez override=true pour forcer.' },
-            { status: 400 }
-          )
-        }
-      }
-
-      // Gérer la transition du stock selon le statut
-      const oldStatus = order.status
-      const newStatus = status
-
-      // Note: Le stock est maintenant décompté lors de la création de commande (PENDING)
-      // donc on ne le décrémente plus lors du passage PENDING → PAID
-
-      // Restaurer le stock quand la commande est annulée
-      if (newStatus === 'CANCELLED' && ['PENDING', 'PAID', 'PREPARED'].includes(oldStatus)) {
-        // Récupérer les items de la commande
-        const { data: orderItems, error: itemsError } = await supabase
-          .from('order_items')
-          .select('product_id, qty')
-          .eq('order_id', id)
-
-        if (itemsError) {
-          console.error('Erreur récupération items:', itemsError)
-          return NextResponse.json(
-            { error: 'Erreur lors de la récupération des items' },
-            { status: 500 }
-          )
-        }
-
-        // Incrémenter le stock pour chaque produit (restauration)
-        for (const item of orderItems) {
-          const { error: stockError } = await supabase.rpc('increment_product_stock', {
-            product_id: item.product_id,
-            quantity: item.qty
-          })
-
-          if (stockError) {
-            console.error('Erreur restauration stock:', stockError)
-          }
-        }
-      }
-
-      // Mettre à jour le statut
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({ status })
-        .eq('id', id)
-
-      if (updateError) {
-        console.error('Erreur mise à jour statut:', updateError)
-        return NextResponse.json(
-          { error: 'Erreur lors de la mise à jour' },
-          { status: 500 }
-        )
-      }
-
-      return NextResponse.json({ success: true })
-    } else {
-      // Mise à jour des notes / références
-      const validatedData = updateOrderNotesSchema.parse({ ...body, orderId: id })
-
-      const updates: any = {}
-      if (validatedData.bankReference !== undefined) {
-        updates.bank_reference = validatedData.bankReference
-      }
-      if (validatedData.adminInternalNote !== undefined) {
-        updates.admin_internal_note = validatedData.adminInternalNote
-      }
-
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update(updates)
-        .eq('id', id)
-
-      if (updateError) {
-        console.error('Erreur mise à jour notes:', updateError)
-        return NextResponse.json(
-          { error: 'Erreur lors de la mise à jour' },
-          { status: 500 }
-        )
-      }
-
-      return NextResponse.json({ success: true })
+    if (error) {
+      return NextResponse.json({ error: 'Erreur mise a jour' }, { status: 500 })
     }
+
+    return NextResponse.json({ order })
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Données invalides', details: error.errors },
-        { status: 400 }
-      )
-    }
-
-    console.error('Erreur PATCH order:', error)
+    console.error('Error PATCH order:', error)
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
   }
 }

@@ -281,39 +281,39 @@ export default function EventTemplateCremant({
           backgroundSize: '120px 120px',
         }} />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-32">
           <div className="text-center">
             {/* Premium Badge - Festive */}
-            <div className="flex justify-center mb-8 animate-fade-in">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-6 py-3 shadow-2xl hover:scale-105 transition-transform duration-300">
-                <Gift className="w-5 h-5 text-amber-300" />
-                <span className="text-white font-semibold tracking-wide">SÉLECTION FÊTES DE FIN D'ANNÉE</span>
-                <Gift className="w-5 h-5 text-amber-300" />
+            <div className="flex justify-center mb-4 md:mb-8 animate-fade-in">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 md:px-6 md:py-3 shadow-2xl hover:scale-105 transition-transform duration-300">
+                <Gift className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
+                <span className="text-white font-semibold tracking-wide text-xs md:text-base">SÉLECTION FÊTES DE FIN D'ANNÉE</span>
+                <Gift className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
               </div>
             </div>
 
             {/* Main Title */}
-            <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight tracking-tight animate-slide-up">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-4 md:mb-8 leading-tight tracking-tight animate-slide-up">
               Bulles & Vins pour les Fêtes
             </h1>
 
             {/* Simple Description */}
-            <p className="text-xl md:text-2xl text-green-50 mb-12 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-100">
+            <p className="text-base md:text-2xl text-green-50 mb-6 md:mb-12 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-100">
               Crémant d'Alsace, Champagne et Vin blanc pour sublimer vos tables de fêtes
             </p>
 
             {/* Meta Info - Simplified */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-10 text-green-100 animate-slide-up animation-delay-200">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mb-6 md:mb-10 text-green-100 text-sm md:text-base animate-slide-up animation-delay-200">
               {hero_config.show_deadline && (
                 <div className="flex items-center gap-2 hover:scale-105 transition-transform">
-                  <Calendar className="w-5 h-5 text-amber-300" />
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
                   <span>Jusqu'au <strong className="font-semibold text-white">{formatDate(event.end_date)}</strong></span>
                 </div>
               )}
 
               {config.pickup_address && (
                 <div className="flex items-center gap-2 hover:scale-105 transition-transform">
-                  <MapPin className="w-5 h-5 text-amber-300" />
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-amber-300" />
                   <span className="font-medium">{config.pickup_address}</span>
                 </div>
               )}
@@ -328,12 +328,12 @@ export default function EventTemplateCremant({
                     productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }
                 }}
-                className="group px-10 md:px-12 py-5 md:py-6 rounded-full text-lg md:text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300"
+                className="group px-8 md:px-12 py-4 md:py-6 rounded-full text-base md:text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-105 transition-all duration-300"
               >
-                <span className="flex items-center gap-3">
-                  <Wine className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                <span className="flex items-center gap-2 md:gap-3">
+                  <Wine className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform" />
                   Découvrir la sélection
-                  <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
@@ -780,7 +780,7 @@ export default function EventTemplateCremant({
       )}
 
       {/* Final CTA Section - Holiday themed */}
-      <section className="relative py-24 md:py-32 overflow-hidden bg-gradient-to-br from-emerald-900 via-green-800 to-amber-900">
+      <section className="relative py-16 md:py-32 overflow-hidden bg-gradient-to-br from-emerald-900 via-green-800 to-amber-900">
         {/* Decorative background */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 left-1/4 w-96 h-96 bg-amber-300 rounded-full blur-3xl animate-pulse" />
@@ -788,22 +788,22 @@ export default function EventTemplateCremant({
         </div>
 
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <Gift className="w-16 h-16 text-amber-300 mx-auto mb-6 animate-bounce" />
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in">
-            Prêts pour les fêtes ?
+          <Gift className="w-12 h-12 md:w-16 md:h-16 text-amber-300 mx-auto mb-4 md:mb-6 animate-bounce" />
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4 md:mb-6 leading-tight animate-fade-in">
+            Prêts pour les&nbsp;fêtes&nbsp;?
           </h2>
-          <p className="text-xl md:text-2xl text-green-100 mb-10 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-100">
+          <p className="text-base md:text-2xl text-green-100 mb-8 md:mb-10 max-w-3xl mx-auto leading-relaxed animate-slide-up animation-delay-100">
             Commandez dès maintenant votre sélection de vins et mousseux.
             Chaque achat soutient nos activités scoutes.
           </p>
 
           <div className="animate-slide-up animation-delay-200">
             <Link href={`/event/${event.slug}/commander`}>
-              <button className="group px-12 py-6 rounded-full text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300">
-                <span className="flex items-center gap-3">
-                  <Wine className="w-7 h-7 group-hover:rotate-12 transition-transform" />
+              <button className="group px-8 md:px-12 py-4 md:py-6 rounded-full text-base md:text-xl font-bold bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-2xl hover:shadow-amber-500/50 hover:scale-110 transition-all duration-300">
+                <span className="flex items-center gap-2 md:gap-3">
+                  <Wine className="w-5 h-5 md:w-7 md:h-7 group-hover:rotate-12 transition-transform" />
                   Commander maintenant
-                  <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
                   </svg>
                 </span>
@@ -811,7 +811,7 @@ export default function EventTemplateCremant({
             </Link>
           </div>
 
-          <p className="mt-8 text-green-200 text-sm animate-fade-in animation-delay-300">
+          <p className="mt-6 md:mt-8 text-green-200 text-xs md:text-sm animate-fade-in animation-delay-300">
             Commandes jusqu'au {formatDate(event.end_date)}
           </p>
         </div>

@@ -16,8 +16,11 @@ import {
 } from 'lucide-react'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
+import ResponsiveModal from '@/components/ui/ResponsiveModal'
 import EventForm, { EventFormValues } from '@/components/forms/EventForm'
 import { useToast } from '@/contexts/ToastContext'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import MobileDashboard from '@/components/admin/mobile/MobileDashboard'
 
 interface Section {
   id: string
@@ -46,6 +49,7 @@ interface Event {
 export default function AdminDashboardPage() {
   const router = useRouter()
   const { addToast } = useToast()
+  const isMobile = useIsMobile()
   const [events, setEvents] = useState<Event[]>([])
   const [sections, setSections] = useState<Section[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -92,7 +96,7 @@ export default function AdminDashboardPage() {
 
   const handleLogout = async () => {
     await fetch('/api/admin/auth/logout', { method: 'POST' })
-    router.push('/admin/login')
+    router.push('/')
   }
 
   // Event handlers
@@ -206,6 +210,49 @@ export default function AdminDashboardPage() {
     totalRevenue: events.reduce((sum, e) => sum + e.stats.totalRevenueCents, 0),
   }
 
+  // Si mobile, utiliser le composant mobile dédié
+  if (isMobile) {
+    return (
+      <>
+        <MobileDashboard onCreateEvent={() => setIsEventModalOpen(true)} />
+
+        {/* Event Modal pour mobile */}
+        <ResponsiveModal
+          isOpen={isEventModalOpen}
+          onClose={closeEventModal}
+          title={editingEvent ? 'Modifier l\'événement' : 'Nouvel événement'}
+          size="lg"
+        >
+          <EventForm
+            initialValues={
+              editingEvent
+                ? {
+                    name: editingEvent.name,
+                    slug: editingEvent.slug,
+                    description: '',
+                    start_date: editingEvent.start_date,
+                    end_date: editingEvent.end_date,
+                    section_id: editingEvent.section.id,
+                    status: editingEvent.status === 'CLOSED' ? 'ARCHIVED' : editingEvent.status,
+                    hero_image_url: '',
+                    hero_title: editingEvent.name,
+                    hero_subtitle: '',
+                    hero_show_stats: true,
+                    hero_cta_text: 'Commander maintenant',
+                  }
+                : undefined
+            }
+            onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent}
+            onCancel={closeEventModal}
+            sections={sections}
+            submitText={editingEvent ? 'Mettre à jour' : 'Créer'}
+          />
+        </ResponsiveModal>
+      </>
+    )
+  }
+
+  // Desktop version
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

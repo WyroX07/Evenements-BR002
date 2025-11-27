@@ -91,13 +91,14 @@ export default function OrderConfirmationPage() {
     }).format(date)
   }
 
-  const getDeliveryTypeLabel = (type: string): { label: string; icon: any; description: string } => {
+  const getDeliveryTypeLabel = (type: string): { label: string; icon: any; description: string; address?: string } => {
     switch (type) {
       case 'PICKUP':
         return {
-          label: 'Retrait en magasin',
+          label: 'Retrait au local',
           icon: Store,
-          description: 'Vous viendrez récupérer votre commande à l\'adresse indiquée'
+          description: 'Vous viendrez récupérer votre commande au local scout',
+          address: 'Rue des Fontenelles 26, 7190 Écaussinnes'
         }
       case 'ON_SITE':
         return {
@@ -252,6 +253,20 @@ export default function OrderConfirmationPage() {
             </div>
           )}
 
+          {/* Adresse de retrait pour PICKUP */}
+          {order.delivery_type === 'PICKUP' && deliveryInfo.address && (
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-gray-700 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-gray-900 mb-1">Adresse de retrait</p>
+                  <p className="text-gray-700">{deliveryInfo.address}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Adresse de livraison pour DELIVERY */}
           {order.delivery_type === 'DELIVERY' && order.delivery_address && (
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-start gap-3">

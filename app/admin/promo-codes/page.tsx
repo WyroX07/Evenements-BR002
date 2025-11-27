@@ -16,6 +16,9 @@ import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import PromoCodeForm, { PromoCodeFormValues } from '@/components/forms/PromoCodeForm'
 import { useToast } from '@/contexts/ToastContext'
+import { useIsMobile } from '@/hooks/useIsMobile'
+import MobilePromoCodes from '@/components/admin/mobile/MobilePromoCodes'
+import ResponsiveModal from '@/components/ui/ResponsiveModal'
 
 interface PromoCode {
   id: string
@@ -30,6 +33,7 @@ interface PromoCode {
 export default function PromoCodesPage() {
   const router = useRouter()
   const { addToast } = useToast()
+  const isMobile = useIsMobile()
 
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -204,6 +208,40 @@ export default function PromoCodesPage() {
     )
   }
 
+  // Mobile version
+  if (isMobile) {
+    return (
+      <>
+        <MobilePromoCodes
+          promoCodes={promoCodes}
+          onEdit={(promo) => openModal(promo)}
+          onDelete={handleDelete}
+          onCreate={() => openModal()}
+        />
+
+        <ResponsiveModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          title={editingPromo ? 'Modifier le code' : 'Nouveau code'}
+          size="md"
+        >
+          <PromoCodeForm
+            initialValues={editingPromo ? {
+              code: editingPromo.code,
+              discountEuros: editingPromo.discount_cents / 100,
+              description: editingPromo.description || '',
+              isActive: editingPromo.is_active,
+            } : undefined}
+            onSubmit={editingPromo ? handleUpdate : handleCreate}
+            onCancel={closeModal}
+            isLoading={isSubmitting}
+          />
+        </ResponsiveModal>
+      </>
+    )
+  }
+
+  // Desktop version
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}

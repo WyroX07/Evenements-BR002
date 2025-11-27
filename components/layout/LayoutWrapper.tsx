@@ -25,13 +25,16 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Masquer le footer sur la page commander en mode mobile
+  // Masquer la navbar et le footer sur toutes les pages admin
+  const isAdminPage = pathname?.startsWith('/admin')
   const isCommanderPage = pathname?.includes('/commander')
-  const shouldHideFooter = isCommanderPage && isMobile
+  const isConfirmationPage = pathname?.includes('/confirmation')
+  const shouldHideNavAndFooter = isAdminPage
+  const shouldHideFooter = (isCommanderPage && isMobile) || isAdminPage || isConfirmationPage
 
   return (
     <>
-      <Navbar onOpenAdminModal={() => setAdminModalOpen(true)} />
+      {!shouldHideNavAndFooter && <Navbar onOpenAdminModal={() => setAdminModalOpen(true)} />}
       <main className="flex-1">
         {children}
       </main>

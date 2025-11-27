@@ -52,12 +52,12 @@ export default function Navbar({ onOpenAdminModal }: NavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
+            {navItems.map((item, index) => {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
                 <Link
-                  key={item.href}
+                  key={`desktop-nav-${item.label}-${index}`}
                   href={item.href}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
                     active
@@ -85,23 +85,44 @@ export default function Navbar({ onOpenAdminModal }: NavbarProps) {
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all duration-300"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <div className="relative w-6 h-6">
+              <Menu
+                className={`w-6 h-6 absolute inset-0 transition-all duration-300 ${
+                  mobileMenuOpen
+                    ? 'opacity-0 rotate-90 scale-0'
+                    : 'opacity-100 rotate-0 scale-100'
+                }`}
+              />
+              <X
+                className={`w-6 h-6 absolute inset-0 transition-all duration-300 ${
+                  mobileMenuOpen
+                    ? 'opacity-100 rotate-0 scale-100'
+                    : 'opacity-0 -rotate-90 scale-0'
+                }`}
+              />
+            </div>
           </button>
         </div>
 
         {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-100">
+        <div
+          className={`md:hidden overflow-hidden transition-all duration-300 ease-out ${
+            mobileMenuOpen
+              ? 'max-h-96 opacity-100'
+              : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="py-4 border-t border-gray-100">
             <div className="flex flex-col gap-2">
-              {navItems.map((item) => {
+              {navItems.map((item, index) => {
                 const Icon = item.icon
                 const active = isActive(item.href)
                 return (
                   <Link
-                    key={item.href}
+                    key={`mobile-menu-${item.label}-${index}`}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm transition-all ${
@@ -109,8 +130,13 @@ export default function Navbar({ onOpenAdminModal }: NavbarProps) {
                         ? 'bg-blue-50 text-[#003f5c]'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
+                    style={{
+                      animation: mobileMenuOpen
+                        ? `slideInFromTop 0.3s ease-out ${index * 0.1}s both`
+                        : 'none',
+                    }}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5 transition-transform group-hover:scale-110" />
                     {item.label}
                   </Link>
                 )
@@ -123,13 +149,32 @@ export default function Navbar({ onOpenAdminModal }: NavbarProps) {
                   onOpenAdminModal()
                 }}
                 className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium text-sm text-gray-500 hover:text-[#003f5c] hover:bg-blue-50 transition-all border-t border-gray-100 mt-2 pt-4 w-full"
+                style={{
+                  animation: mobileMenuOpen
+                    ? `slideInFromTop 0.3s ease-out ${navItems.length * 0.1}s both`
+                    : 'none',
+                }}
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-5 h-5 transition-transform group-hover:rotate-90" />
                 Administration
               </button>
             </div>
           </div>
-        )}
+        </div>
+
+        {/* Animations */}
+        <style jsx>{`
+          @keyframes slideInFromTop {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
     </nav>
   )
