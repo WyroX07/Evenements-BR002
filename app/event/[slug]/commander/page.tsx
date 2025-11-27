@@ -12,6 +12,8 @@ import Input from '@/components/ui/Input'
 import PaymentMethodsBadge from '@/components/payment/PaymentMethodsBadge'
 import StepBar, { Step } from '@/components/ui/StepBar'
 import { useToast } from '@/contexts/ToastContext'
+import { useDeviceDetection } from './hooks/useDeviceDetection'
+import MobileCommander from './MobileCommander'
 
 // Helper function to get allergen label in French
 const getAllergenLabel = (allergenCode: string): string => {
@@ -104,6 +106,7 @@ export default function CommanderPage() {
   const router = useRouter()
   const slug = params.slug as string
   const { addToast } = useToast()
+  const isMobile = useDeviceDetection()
 
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
@@ -637,6 +640,11 @@ export default function CommanderPage() {
 
   // Get current step info
   const currentStep = allSteps[currentStepIndex]
+
+  // Si mobile, afficher le composant mobile dédié
+  if (isMobile) {
+    return <MobileCommander />
+  }
 
   if (loading) {
     return (
