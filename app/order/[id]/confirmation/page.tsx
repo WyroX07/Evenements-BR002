@@ -23,16 +23,20 @@ import Button from '@/components/ui/Button'
 
 interface Order {
   id: string
-  order_code: string
+  code: string // Database column is 'code', not 'order_code'
   customer_name: string
   email: string
   phone: string
   delivery_type: string
-  delivery_address?: string
-  delivery_city?: string
-  delivery_zip?: string
+  address?: string // Database column is 'address', not 'delivery_address'
+  city?: string // Database column is 'city', not 'delivery_city'
+  zip?: string // Database column is 'zip', not 'delivery_zip'
   payment_method: string
   total_cents: number
+  subtotal_cents?: number
+  discount_cents?: number
+  delivery_fee_cents?: number
+  promo_discount_cents?: number
   status: string
   created_at: string
   items: Array<{
@@ -65,6 +69,8 @@ export default function OrderConfirmationPage() {
         const res = await fetch(`/api/orders/details/${orderId}`)
         if (!res.ok) throw new Error('Order not found')
         const data = await res.json()
+        console.log('[Confirmation Page] Order data:', data.order)
+        console.log('[Confirmation Page] Order items:', data.order.items)
         setOrder(data.order)
       } catch (err) {
         console.error('Error fetching order:', err)
@@ -182,7 +188,7 @@ export default function OrderConfirmationPage() {
           <div className="inline-flex items-center gap-2 bg-amber-100 px-4 py-2 rounded-full">
             <Package className="w-5 h-5 text-amber-700" />
             <span className="text-sm text-gray-600">N° de commande :</span>
-            <span className="font-mono font-bold text-amber-700 text-lg">{order.order_code}</span>
+            <span className="font-mono font-bold text-amber-700 text-lg">{order.code}</span>
           </div>
         </div>
 
@@ -267,15 +273,15 @@ export default function OrderConfirmationPage() {
           )}
 
           {/* Adresse de livraison pour DELIVERY */}
-          {order.delivery_type === 'DELIVERY' && order.delivery_address && (
+          {order.delivery_type === 'DELIVERY' && order.address && (
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-gray-700 mt-0.5" />
                 <div>
                   <p className="font-semibold text-gray-900 mb-1">Adresse de livraison</p>
                   <p className="text-gray-700">
-                    {order.delivery_address}<br />
-                    {order.delivery_zip} {order.delivery_city}
+                    {order.address}<br />
+                    {order.zip} {order.city}
                   </p>
                 </div>
               </div>

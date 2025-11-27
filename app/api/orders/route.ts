@@ -282,13 +282,17 @@ export async function POST(request: NextRequest) {
     console.log('[POST /api/orders] Order created:', order.id)
 
     // 11. Créer les lignes de commande
-    const orderItems = validatedData.items.map((item) => ({
-      order_id: order.id,
-      product_id: item.cuveeId,
-      qty: item.qty,
-      unit_price_cents: item.unitPriceCents,
-      line_total_cents: item.qty * item.unitPriceCents,
-    }))
+    const orderItems = validatedData.items.map((item) => {
+      const product = productMap.get(item.cuveeId)!
+      return {
+        order_id: order.id,
+        product_id: item.cuveeId,
+        product_name: product.name, // Add product name for display
+        quantity: item.qty,
+        unit_price_cents: item.unitPriceCents,
+        line_total_cents: item.qty * item.unitPriceCents,
+      }
+    })
 
     const { error: itemsError } = await supabase
       .from('order_items')
