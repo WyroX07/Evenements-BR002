@@ -15,8 +15,7 @@ import ProductDetailsModal from './components/ProductDetailsModal'
 // Hooks
 import { mobileInputClasses } from './hooks/useMobileInput'
 
-// Utils
-import { formatBelgianPhone } from '@/lib/utils/phoneFormatter'
+// Phone formatting is done server-side after validation
 
 // Types
 interface Product {
@@ -275,7 +274,7 @@ export default function MobileCommander() {
         eventId: event?.id,
         customerName: formData.customerName,
         email: formData.email,
-        phone: formatBelgianPhone(formData.phone || ''), // Format: 04xx/xx.xx.xx
+        phone: formData.phone, // Will be formatted server-side after validation
         notes: formData.notes || undefined,
         deliveryType,
         slotId: formData.slotId || null,

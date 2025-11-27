@@ -4,6 +4,7 @@ import { createOrderSchema } from '@/lib/validators'
 import { calculateOrderTotals, meetsDeliveryMinimum, validateStock } from '@/lib/calculations'
 import { generateOrderCode } from '@/lib/utils'
 import { sendOrderConfirmation, OrderConfirmationData } from '@/lib/emails'
+import { formatBelgianPhone } from '@/lib/utils/phoneFormatter'
 import { z } from 'zod'
 
 /**
@@ -237,6 +238,10 @@ export async function POST(request: NextRequest) {
 
     // 10. Créer la commande
     console.log('[POST /api/orders] Creating order with code:', orderCode)
+
+    // Format phone number to 04xx/xx.xx.xx before storing
+    const formattedPhone = formatBelgianPhone(validatedData.phone)
+
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -245,7 +250,7 @@ export async function POST(request: NextRequest) {
         status: 'PENDING',
         customer_name: validatedData.customerName,
         email: validatedData.email,
-        phone: validatedData.phone,
+        phone: formattedPhone,
         delivery_type: validatedData.deliveryType,
         slot_id: validatedData.slotId,
         address: validatedData.address,
