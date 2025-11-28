@@ -221,11 +221,47 @@ export default function OrderConfirmationPage() {
             ))}
           </div>
 
-          <div className="flex justify-between items-center pt-4 border-t-2 border-amber-200">
-            <span className="text-xl font-bold text-gray-900">Total</span>
-            <span className="text-3xl font-bold text-amber-700">
-              {formatPrice(order.total_cents)}
-            </span>
+          {/* Pricing breakdown */}
+          <div className="pt-4 border-t-2 border-gray-200 space-y-2">
+            {/* Subtotal */}
+            {order.subtotal_cents !== undefined && order.subtotal_cents > 0 && (
+              <div className="flex justify-between items-center text-gray-700">
+                <span className="text-sm">Sous-total</span>
+                <span className="font-semibold">{formatPrice(order.subtotal_cents)}</span>
+              </div>
+            )}
+
+            {/* Discount 10 for 9 */}
+            {order.discount_cents !== undefined && order.discount_cents > 0 && (
+              <div className="flex justify-between items-center text-green-600">
+                <span className="text-sm">Remise 12 pour 11</span>
+                <span className="font-semibold">-{formatPrice(order.discount_cents)}</span>
+              </div>
+            )}
+
+            {/* Promo code discount */}
+            {order.promo_discount_cents !== undefined && order.promo_discount_cents > 0 && (
+              <div className="flex justify-between items-center text-green-600">
+                <span className="text-sm">Code promo</span>
+                <span className="font-semibold">-{formatPrice(order.promo_discount_cents)}</span>
+              </div>
+            )}
+
+            {/* Delivery fee */}
+            {order.delivery_fee_cents !== undefined && order.delivery_fee_cents > 0 && (
+              <div className="flex justify-between items-center text-gray-700">
+                <span className="text-sm">Frais de livraison</span>
+                <span className="font-semibold">{formatPrice(order.delivery_fee_cents)}</span>
+              </div>
+            )}
+
+            {/* Total */}
+            <div className="flex justify-between items-center pt-3 border-t-2 border-amber-200">
+              <span className="text-xl font-bold text-gray-900">Total</span>
+              <span className="text-3xl font-bold text-amber-700">
+                {formatPrice(order.total_cents)}
+              </span>
+            </div>
           </div>
         </div>
 
