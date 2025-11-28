@@ -167,7 +167,7 @@ export default function MobileProductCard({
                 <button
                   onClick={handleAddCase}
                   disabled={remainingStock !== null && remainingStock < 6}
-                  className="w-full py-2 px-3 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-800 text-sm font-semibold rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="w-full py-1.5 md:py-1 px-3 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-800 text-xs md:text-[11px] font-semibold rounded-md transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   + Ajouter une caisse de 6
                 </button>

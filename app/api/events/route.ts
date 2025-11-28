@@ -1,19 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase/server'
 
-/**
- * GET /api/events
- * Liste tous les événements actifs (statut ACTIVE et dans la période)
- * Peut être filtré par section
- */
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url)
-    const sectionSlug = searchParams.get('section') // Optionnel: filtrer par section
-
     const supabase = createServerClient() as any
 
-    let query = supabase
+    const { data: events, error } = await supabase
       .from('events')
       .select(`
         *,
@@ -29,27 +21,9 @@ export async function GET(request: Request) {
       .gte('end_date', new Date().toISOString().split('T')[0])
       .order('start_date', { ascending: true })
 
-    // Filtrer par section si demandé
-    if (sectionSlug) {
-      const { data: section } = await supabase
-        .from('sections')
-        .select('id')
-        .eq('slug', sectionSlug)
-        .single()
-
-      if (section) {
-        query = query.eq('section_id', section.id)
-      }
-    }
-
-    const { data: events, error } = await query
-
     if (error) {
       console.error('Erreur récupération événements:', error)
-      return NextResponse.json(
-        { error: 'Erreur lors de la récupération des événements' },
-        { status: 500 }
-      )
+      return NextResponse.json({ events: [] })
     }
 
     // Pour chaque événement, compter les commandes pour stats
@@ -70,9 +44,9 @@ export async function GET(request: Request) {
       })
     )
 
-    return NextResponse.json({ events: eventsWithStats })
+    return NextResponse.json({ events: eventsWithStats || [] })
   } catch (error) {
-    console.error('Erreur GET events:', error)
-    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 })
+    console.error('Erreur fetch événements:', error)
+    return NextResponse.json({ events: [] })
   }
 }

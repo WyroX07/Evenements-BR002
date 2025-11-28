@@ -29,8 +29,9 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   const isAdminPage = pathname?.startsWith('/admin')
   const isCommanderPage = pathname?.includes('/commander')
   const isConfirmationPage = pathname?.includes('/confirmation')
-  const shouldHideNavAndFooter = isAdminPage
-  const shouldHideFooter = (isCommanderPage && isMobile) || isAdminPage || isConfirmationPage
+  const isHomePage = pathname === '/'
+  const shouldHideNavAndFooter = isAdminPage || (isHomePage && isMobile)
+  const shouldHideFooter = (isCommanderPage && isMobile) || isAdminPage || isConfirmationPage || (isHomePage && isMobile)
 
   return (
     <>

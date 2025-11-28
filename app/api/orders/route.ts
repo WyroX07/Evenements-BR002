@@ -5,6 +5,7 @@ import { calculateOrderTotals, meetsDeliveryMinimum, validateStock } from '@/lib
 import { generateOrderCode } from '@/lib/utils'
 import { sendOrderConfirmation, OrderConfirmationData } from '@/lib/emails'
 import { formatBelgianPhone } from '@/lib/utils/phoneFormatter'
+import { generateQRCode } from '@/lib/qr'
 import { z } from 'zod'
 
 /**
@@ -357,6 +358,15 @@ export async function POST(request: NextRequest) {
       fullAddress = `${validatedData.address}, ${validatedData.zip} ${validatedData.city}`
     }
 
+    // Générer le QR code pour la commande
+    let qrCodeDataUrl: string | undefined
+    try {
+      qrCodeDataUrl = await generateQRCode(order.code)
+    } catch (error) {
+      console.error('Erreur génération QR code:', error)
+      // Continue sans QR code si la génération échoue
+    }
+
     // Préparer les données de l'email
     const emailData: OrderConfirmationData = {
       orderCode: order.code,
@@ -384,6 +394,7 @@ export async function POST(request: NextRequest) {
       ibanName: config.payment_iban_name_override || event.section.iban_name,
       discount: totals.discountCents,
       confirmationUrl,
+      qrCodeDataUrl,
     }
 
     // Envoyer l'email (de manière asynchrone sans bloquer la réponse)

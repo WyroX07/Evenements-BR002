@@ -58,6 +58,7 @@ export interface OrderConfirmationData {
   ibanName?: string
   discount?: number
   confirmationUrl: string
+  qrCodeDataUrl?: string
 }
 
 /**
@@ -112,6 +113,21 @@ export function generateOrderConfirmationHTML(data: OrderConfirmationData): stri
               </table>
             </td>
           </tr>
+
+          ${data.qrCodeDataUrl ? `
+          <!-- QR Code -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <div style="background-color: #f0f9ff; border: 2px solid #0284c7; border-radius: 12px; padding: 24px; text-align: center;">
+                <p style="margin: 0 0 16px; font-size: 14px; color: #075985; font-weight: 600;">📱 PRÉSENTEZ CE QR CODE</p>
+                <img src="${data.qrCodeDataUrl}" alt="QR Code commande" style="width: 200px; height: 200px; margin: 0 auto; display: block; border-radius: 8px;" />
+                <p style="margin: 16px 0 0; font-size: 13px; color: #075985;">
+                  ${data.deliveryType === 'PICKUP' ? 'Présentez ce QR code lors du retrait de votre commande' : data.deliveryType === 'DELIVERY' ? 'Présentez ce QR code lors de la livraison' : 'Présentez ce QR code sur place'}
+                </p>
+              </div>
+            </td>
+          </tr>
+          ` : ''}
 
           <!-- Event Info -->
           <tr>

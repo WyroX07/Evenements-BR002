@@ -1453,20 +1453,17 @@ export default function CommanderPage() {
       </main>
 
       {/* Product Details Modal */}
-      {selectedProduct && (
-        <ProductDetailsModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onAddToCart={() => {
-            addToCart(selectedProduct.id)
-            setSelectedProduct(null)
-          }}
-          onUpdateQuantity={(qty) => {
+      <ProductDetailsModal
+        product={selectedProduct}
+        isOpen={selectedProduct !== null}
+        onClose={() => setSelectedProduct(null)}
+        quantity={selectedProduct ? (cart[selectedProduct.id] || 0) : 0}
+        onAddToCart={(qty) => {
+          if (selectedProduct) {
             updateQuantity(selectedProduct.id, qty)
-          }}
-          currentQuantity={cart[selectedProduct.id] || 0}
-        />
-      )}
+          }
+        }}
+      />
     </div>
   )
 }

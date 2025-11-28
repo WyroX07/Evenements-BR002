@@ -160,18 +160,19 @@ export default function EventTemplateCremant({
 
   const activeProducts = products.filter((p) => p.is_active).sort((a, b) => a.sort_order - b.sort_order)
 
-  // Smooth carousel scroll tracking for mobile
+  // Smooth carousel scroll tracking for both mobile and desktop
   useEffect(() => {
     const handleScroll = () => {
-      const container = mobileCarouselRef.current
+      const isMobile = window.innerWidth < 768
+      const container = isMobile ? mobileCarouselRef.current : carouselRef.current
       if (!container) return
 
-      const cards = container.querySelectorAll('.mobile-carousel-card')
+      const cards = container.querySelectorAll(isMobile ? '.mobile-carousel-card' : '.carousel-card')
       const containerCenter = container.scrollLeft + container.offsetWidth / 2
 
       // Update current slide indicator based on scroll position
       const cardWidth = cards[0] ? (cards[0] as HTMLElement).offsetWidth : 0
-      const gap = 24
+      const gap = isMobile ? 24 : 40
       const newSlide = Math.round(container.scrollLeft / (cardWidth + gap))
       setCurrentSlide(Math.max(0, Math.min(activeProducts.length - 1, newSlide)))
 
@@ -196,14 +197,21 @@ export default function EventTemplateCremant({
       })
     }
 
-    const container = mobileCarouselRef.current
-    if (container) {
-      container.addEventListener('scroll', handleScroll, { passive: true })
-      handleScroll() // Initial call
+    const mobileContainer = mobileCarouselRef.current
+    const desktopContainer = carouselRef.current
 
-      return () => {
-        container.removeEventListener('scroll', handleScroll)
-      }
+    if (mobileContainer) {
+      mobileContainer.addEventListener('scroll', handleScroll, { passive: true })
+      handleScroll()
+    }
+    if (desktopContainer) {
+      desktopContainer.addEventListener('scroll', handleScroll, { passive: true })
+      handleScroll()
+    }
+
+    return () => {
+      if (mobileContainer) mobileContainer.removeEventListener('scroll', handleScroll)
+      if (desktopContainer) desktopContainer.removeEventListener('scroll', handleScroll)
     }
   }, [activeProducts])
 
@@ -354,8 +362,30 @@ export default function EventTemplateCremant({
 
             {/* Carousel Container */}
             <div className="relative">
-              {/* Desktop Carousel - same approach as mobile */}
+              {/* Desktop Carousel */}
               <div className="hidden md:block relative">
+                {/* Navigation Buttons */}
+                {activeProducts.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => scrollCarousel('left')}
+                      disabled={currentSlide === 0}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed border border-gray-200"
+                      aria-label="Produit précédent"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-gray-800" />
+                    </button>
+                    <button
+                      onClick={() => scrollCarousel('right')}
+                      disabled={currentSlide === activeProducts.length - 1}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-30 disabled:cursor-not-allowed border border-gray-200"
+                      aria-label="Produit suivant"
+                    >
+                      <ChevronRight className="w-6 h-6 text-gray-800" />
+                    </button>
+                  </>
+                )}
+
                 {/* Fade overlays on sides */}
                 <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none"></div>
                 <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none"></div>
@@ -373,9 +403,13 @@ export default function EventTemplateCremant({
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product)}
-                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[420px] md:w-[450px] lg:w-[500px] snap-center"
+                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 cursor-pointer flex-shrink-0 w-[420px] md:w-[450px] lg:w-[500px] snap-center"
                   style={{
                     animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
+                    transform: 'scale(var(--scale, 1))',
+                    opacity: 'var(--opacity, 1)',
+                    filter: currentSlide === index ? 'none' : 'grayscale(30%) blur(0.5px)',
+                    transition: 'all 0.3s ease-out',
                   }}
                 >
                   {/* Decorative top line */}

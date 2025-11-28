@@ -450,9 +450,12 @@ export default async function ConfirmationPage({
             )}
 
             {/* Email Confirmation */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-2">
               <p className="text-sm text-blue-800">
                 📧 Un email de confirmation a été envoyé à <strong>{order.email}</strong> avec tous les détails de votre commande.
+              </p>
+              <p className="text-sm text-blue-700">
+                📱 Cet email contient un QR code à présenter lors {order.delivery_type === 'PICKUP' ? 'du retrait' : order.delivery_type === 'DELIVERY' ? 'de la livraison' : 'sur place'}.
               </p>
             </div>
 
