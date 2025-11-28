@@ -353,14 +353,14 @@ export default function EventTemplateCremant({
             </div>
 
             {/* Carousel Container */}
-            <div className="relative overflow-hidden">
+            <div className="relative">
               {/* Navigation Buttons - Desktop only */}
               {activeProducts.length > 1 && (
                 <>
                   <button
                     onClick={() => scrollCarousel('left')}
                     disabled={currentSlide === 0}
-                    className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+                    className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit précédent"
                   >
                     <ChevronLeft className="w-6 h-6 text-gray-800" />
@@ -368,7 +368,7 @@ export default function EventTemplateCremant({
                   <button
                     onClick={() => scrollCarousel('right')}
                     disabled={currentSlide === activeProducts.length - 1}
-                    className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
+                    className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
                     aria-label="Produit suivant"
                   >
                     <ChevronRight className="w-6 h-6 text-gray-800" />
@@ -381,7 +381,7 @@ export default function EventTemplateCremant({
               <div className="hidden md:block absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
 
               {/* Carousel - Desktop version with transform-based sliding */}
-              <div className="hidden md:block overflow-hidden">
+              <div className="hidden md:block overflow-hidden relative">
                 <div
                   className="flex gap-10 pb-4 transition-transform duration-300 ease-out"
                   style={{

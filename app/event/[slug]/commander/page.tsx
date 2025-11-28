@@ -15,6 +15,7 @@ import StepBar, { Step } from '@/components/ui/StepBar'
 import { useToast } from '@/contexts/ToastContext'
 import { useDeviceDetection } from './hooks/useDeviceDetection'
 import MobileCommander from './MobileCommander'
+import ProductDetailsModal from './components/ProductDetailsModal'
 
 // Helper function to get allergen label in French
 const getAllergenLabel = (allergenCode: string): string => {
@@ -116,6 +117,7 @@ export default function CommanderPage() {
   const [cart, setCart] = useState<Record<string, number>>({})
   const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [expandedDates, setExpandedDates] = useState<string[]>([])
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
 
   // Promo code states
   const [promoCode, setPromoCode] = useState('')
@@ -711,168 +713,125 @@ export default function CommanderPage() {
                   Sélectionnez vos produits
                 </h2>
 
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Products Grid - Compact cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {event.products.map(product => {
                     const qty = cart[product.id] || 0
                     const isOutOfStock = product.stock !== null && product.stock <= 0
-                    const isLowStock = product.stock !== null && product.stock - qty <= 5 && product.stock - qty > 0
 
                     return (
                       <div
                         key={product.id}
-                        className="group relative bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:border-amber-400 hover:shadow-xl transition-all duration-300"
+                        className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-amber-400 hover:shadow-lg transition-all duration-200 flex flex-col"
                       >
-                        {/* Product Image */}
+                        {/* Product Image - compact */}
                         {product.image_url && (
-                          <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50">
+                          <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 cursor-pointer" onClick={() => setSelectedProduct(product)}>
                             <Image
                               src={product.image_url}
                               alt={product.name}
                               fill
-                              className="object-cover group-hover:scale-110 transition-transform duration-500"
+                              className="object-cover"
                             />
-                            {/* Stock badge */}
-                            {isLowStock && (
-                              <div className="absolute top-3 right-3 px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full shadow-lg">
-                                Stock limité !
-                              </div>
-                            )}
                           </div>
                         )}
 
-                        {/* Product Content */}
-                        <div className="p-6">
-                          <h3 className="font-bold text-xl text-gray-900 mb-2">
+                        {/* Product Info - compact */}
+                        <div className="p-4 flex-1 flex flex-col">
+                          <h3 className="font-semibold text-base text-gray-900 mb-1 line-clamp-1 cursor-pointer hover:text-amber-600" onClick={() => setSelectedProduct(product)}>
                             {product.name}
                           </h3>
 
-                          {product.description && (
-                            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                              {product.description}
-                            </p>
-                          )}
-
-                          {/* Price */}
-                          <div className="mb-4">
-                            <span className="text-3xl font-extrabold text-amber-600">
+                          <div className="flex items-baseline gap-2 mb-2">
+                            <span className="text-xl font-bold text-amber-600">
                               {(product.price_cents / 100).toFixed(2)} €
                             </span>
+                            {product.stock !== null && (
+                              <span className="text-xs text-gray-500">
+                                Stock: {product.stock - qty}
+                              </span>
+                            )}
                           </div>
 
-                          {/* Dietary badges and allergens */}
-                          {(product.is_vegetarian || product.is_vegan || (product.allergens && product.allergens.length > 0)) && (
-                            <div className="flex flex-wrap gap-2 mb-4">
+                          {/* Badges - compact */}
+                          {(product.is_vegetarian || product.is_vegan) && (
+                            <div className="flex gap-1 mb-3">
                               {product.is_vegan && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                  <Sprout className="w-3.5 h-3.5" />
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                  <Sprout className="w-3 h-3" />
                                   Vegan
                                 </span>
                               )}
                               {product.is_vegetarian && !product.is_vegan && (
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                                  <Leaf className="w-3.5 h-3.5" />
-                                  Végétarien
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                                  <Leaf className="w-3 h-3" />
+                                  Végé
                                 </span>
-                              )}
-                              {product.allergens && product.allergens.length > 0 && (
-                                <>
-                                  {product.allergens.map((allergen) => (
-                                    <span
-                                      key={allergen}
-                                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-semibold border border-orange-300"
-                                    >
-                                      <AlertTriangle className="w-3 h-3" />
-                                      {getAllergenLabel(allergen)}
-                                    </span>
-                                  ))}
-                                </>
                               )}
                             </div>
                           )}
 
-                          {/* Stock info */}
-                          {product.stock !== null && (
-                            <p className={`text-sm mb-4 font-medium ${
-                              isLowStock ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              Stock: {product.stock - qty} / {product.stock}
-                            </p>
-                          )}
+                          {/* Spacer to push buttons to bottom */}
+                          <div className="flex-1"></div>
 
-                          {/* Add to cart section */}
-                          <div className="space-y-3">
+                          {/* Buttons at bottom */}
+                          <div className="space-y-2 mt-auto">
                             {qty === 0 ? (
-                              <div className="space-y-2">
-                                <Button
+                              <>
+                                <button
                                   type="button"
                                   onClick={() => addToCart(product.id)}
                                   disabled={isOutOfStock}
-                                  className="w-full py-3 text-base font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
+                                  className="w-full py-2 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 text-white font-medium rounded-lg transition-colors text-sm"
                                 >
-                                  {isOutOfStock ? (
-                                    <>
-                                      <Package className="w-5 h-5 mr-2" />
-                                      Rupture de stock
-                                    </>
-                                  ) : (
-                                    <>
-                                      <ShoppingCart className="w-5 h-5 mr-2" />
-                                      Ajouter au panier
-                                    </>
-                                  )}
-                                </Button>
-
-                                {/* Quick add case button */}
+                                  {isOutOfStock ? 'Rupture' : 'Ajouter'}
+                                </button>
                                 {product.product_type === 'ITEM' && product.stock !== null && product.stock >= 6 && (
-                                  <Button
+                                  <button
                                     type="button"
                                     onClick={() => updateQuantity(product.id, 6)}
-                                    className="w-full py-2.5 text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+                                    className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors text-xs"
                                   >
-                                    🍾 Ajouter une caisse (6 bouteilles)
-                                  </Button>
+                                    + Caisse (6)
+                                  </button>
                                 )}
-                              </div>
+                              </>
                             ) : (
-                              <div className="space-y-2">
-                                {/* Quantity controls */}
-                                <div className="flex items-center justify-center gap-4 bg-gray-50 rounded-xl p-4">
+                              <>
+                                <div className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg p-2">
                                   <button
                                     type="button"
                                     onClick={() => removeFromCart(product.id)}
-                                    className="w-12 h-12 rounded-full bg-white border-2 border-gray-300 hover:border-red-500 hover:bg-red-50 text-gray-700 hover:text-red-600 flex items-center justify-center font-bold text-xl transition-all shadow-sm hover:shadow-md"
+                                    className="w-8 h-8 rounded-full bg-white border border-gray-300 hover:border-red-500 hover:bg-red-50 text-gray-700 hover:text-red-600 flex items-center justify-center font-bold transition-all"
                                   >
                                     -
                                   </button>
-                                  <span className="text-2xl font-extrabold text-gray-900 min-w-[3rem] text-center">
+                                  <span className="font-bold text-lg text-gray-900">
                                     {qty}
                                   </span>
                                   <button
                                     type="button"
                                     onClick={() => addToCart(product.id)}
                                     disabled={product.stock !== null && qty >= product.stock}
-                                    className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl transition-all shadow-sm hover:shadow-md ${
+                                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${
                                       product.stock !== null && qty >= product.stock
-                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border-2 border-gray-300'
-                                        : 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white border-2 border-amber-400'
+                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
+                                        : 'bg-amber-600 hover:bg-amber-700 text-white'
                                     }`}
                                   >
                                     +
                                   </button>
                                 </div>
-
-                                {/* Add case button when in cart */}
                                 {product.product_type === 'ITEM' && product.stock !== null && qty + 6 <= product.stock && (
-                                  <Button
+                                  <button
                                     type="button"
                                     onClick={() => updateQuantity(product.id, qty + 6)}
-                                    className="w-full py-2.5 text-sm font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-xl shadow-md hover:shadow-lg transition-all"
+                                    className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors text-xs"
                                   >
-                                    + Ajouter une caisse (6 bouteilles)
-                                  </Button>
+                                    + Caisse (6)
+                                  </button>
                                 )}
-                              </div>
+                              </>
                             )}
                           </div>
                         </div>
@@ -1633,6 +1592,22 @@ export default function CommanderPage() {
           </div>
         </form>
       </main>
+
+      {/* Product Details Modal */}
+      {selectedProduct && (
+        <ProductDetailsModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={() => {
+            addToCart(selectedProduct.id)
+            setSelectedProduct(null)
+          }}
+          onUpdateQuantity={(qty) => {
+            updateQuantity(selectedProduct.id, qty)
+          }}
+          currentQuantity={cart[selectedProduct.id] || 0}
+        />
+      )}
     </div>
   )
 }
