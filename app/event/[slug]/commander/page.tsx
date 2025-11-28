@@ -14,6 +14,7 @@ import StepBar, { Step } from '@/components/ui/StepBar'
 import { useToast } from '@/contexts/ToastContext'
 import { useDeviceDetection } from './hooks/useDeviceDetection'
 import MobileCommander from './MobileCommander'
+import DesktopProductCarousel from './components/DesktopProductCarousel'
 
 // Helper function to get allergen label in French
 const getAllergenLabel = (allergenCode: string): string => {
@@ -44,6 +45,7 @@ interface Product {
   price_cents: number
   product_type: string
   stock: number | null
+  image_url: string | null
   allergens?: string[]
   is_vegetarian?: boolean
   is_vegan?: boolean
@@ -705,137 +707,17 @@ export default function CommanderPage() {
             {/* Step 1: Products Selection */}
             {currentStep.id === 'products' && (
               <div className="bg-white rounded-xl shadow-md p-6 sm:p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                  <ShoppingCart className="w-6 h-6 text-amber-600" />
+                <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
                   Sélectionnez vos produits
                 </h2>
 
-                <div className="space-y-4">
-                  {event.products.map(product => {
-                    const qty = cart[product.id] || 0
-                    return (
-                      <div
-                        key={product.id}
-                        className="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:border-amber-300 hover:shadow-md transition-all"
-                      >
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 text-lg">
-                            {product.name}
-                          </h3>
-                          {product.description && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              {product.description}
-                            </p>
-                          )}
-                          <p className="text-xl font-bold text-amber-600 mt-2">
-                            {(product.price_cents / 100).toFixed(2)} €
-                          </p>
-
-                          {/* Dietary icons and allergens */}
-                          {(product.is_vegetarian || product.is_vegan || (product.allergens && product.allergens.length > 0)) && (
-                            <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                              {product.is_vegan && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                                  <Sprout className="w-3 h-3" />
-                                  Vegan
-                                </span>
-                              )}
-                              {product.is_vegetarian && !product.is_vegan && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                                  <Leaf className="w-3 h-3" />
-                                  Végétarien
-                                </span>
-                              )}
-                              {product.allergens && product.allergens.length > 0 && (
-                                <>
-                                  {product.allergens.map((allergen) => (
-                                    <span
-                                      key={allergen}
-                                      className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded text-xs font-medium border border-orange-200"
-                                    >
-                                      <AlertTriangle className="w-3 h-3" />
-                                      {getAllergenLabel(allergen)}
-                                    </span>
-                                  ))}
-                                </>
-                              )}
-                            </div>
-                          )}
-
-                          {product.stock !== null && (
-                            <p className={`text-xs mt-1 font-medium ${
-                              product.stock - qty <= 5 ? 'text-red-600' : 'text-gray-600'
-                            }`}>
-                              Stock restant: {product.stock - qty} / {product.stock}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col gap-2">
-                          {qty === 0 ? (
-                            <>
-                              <Button
-                                type="button"
-                                onClick={() => addToCart(product.id)}
-                                size="sm"
-                                disabled={product.stock !== null && product.stock <= 0}
-                              >
-                                {product.stock !== null && product.stock <= 0 ? 'Rupture' : 'Ajouter'}
-                              </Button>
-                              {product.product_type === 'ITEM' && product.stock !== null && product.stock >= 6 && (
-                                <Button
-                                  type="button"
-                                  onClick={() => updateQuantity(product.id, 6)}
-                                  size="sm"
-                                  className="text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white"
-                                >
-                                  🍾 Caisse (6 btl)
-                                </Button>
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex items-center gap-3">
-                                <button
-                                  type="button"
-                                  onClick={() => removeFromCart(product.id)}
-                                  className="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-lg transition-colors"
-                                >
-                                  -
-                                </button>
-                                <span className="w-12 text-center font-bold text-lg">
-                                  {qty}
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => addToCart(product.id)}
-                                  disabled={product.stock !== null && qty >= product.stock}
-                                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg transition-colors ${
-                                    product.stock !== null && qty >= product.stock
-                                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                      : 'bg-amber-600 hover:bg-amber-700 text-white'
-                                  }`}
-                                >
-                                  +
-                                </button>
-                              </div>
-                              {product.product_type === 'ITEM' && product.stock !== null && qty + 6 <= product.stock && (
-                                <Button
-                                  type="button"
-                                  onClick={() => updateQuantity(product.id, qty + 6)}
-                                  size="sm"
-                                  className="text-xs bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white"
-                                >
-                                  + Caisse (6 btl)
-                                </Button>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
+                <DesktopProductCarousel
+                  products={event.products}
+                  cart={cart}
+                  onAddToCart={addToCart}
+                  onRemoveFromCart={removeFromCart}
+                  onUpdateQuantity={updateQuantity}
+                />
 
                 {event.config.discount_10for9 && (
                   <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 text-green-700 rounded-lg text-sm font-medium">
