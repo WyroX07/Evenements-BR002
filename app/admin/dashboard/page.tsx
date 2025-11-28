@@ -4,21 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Plus,
   Calendar,
   ShoppingBag,
-  Users,
   Package,
-  Filter,
-  LogOut,
   BarChart3,
-  Tag
+  TrendingUp,
+  ArrowUpRight,
+  Eye
 } from 'lucide-react'
-import Button from '@/components/ui/Button'
-import Modal from '@/components/ui/Modal'
-import ResponsiveModal from '@/components/ui/ResponsiveModal'
-import EventForm, { EventFormValues } from '@/components/forms/EventForm'
-import { useToast } from '@/contexts/ToastContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import MobileDashboard from '@/components/admin/mobile/MobileDashboard'
 import AdminLayout from '@/components/admin/AdminLayout'
@@ -49,18 +42,9 @@ interface Event {
 
 export default function AdminDashboardPage() {
   const router = useRouter()
-  const { addToast } = useToast()
   const isMobile = useIsMobile()
   const [events, setEvents] = useState<Event[]>([])
-  const [sections, setSections] = useState<Section[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [filterSection, setFilterSection] = useState<string>('all')
-  const [filterStatus, setFilterStatus] = useState<string>('all')
-
-  // Modal states
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false)
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -69,9 +53,8 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     try {
       setIsLoading(true)
-
-      // Fetch events
       const eventsRes = await fetch('/api/admin/events')
+
       if (!eventsRes.ok) {
         if (eventsRes.status === 401) {
           router.push('/admin/login')
@@ -79,108 +62,18 @@ export default function AdminDashboardPage() {
         }
         throw new Error('Erreur de chargement')
       }
+
       const eventsData = await eventsRes.json()
       setEvents(eventsData.events || [])
-
-      // Fetch sections
-      const sectionsRes = await fetch('/api/sections')
-      if (sectionsRes.ok) {
-        const sectionsData = await sectionsRes.json()
-        setSections(sectionsData.sections || [])
-      }
     } catch (err) {
-      setError('Erreur de chargement des données')
+      console.error('Error fetching data:', err)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleLogout = async () => {
-    await fetch('/api/admin/auth/logout', { method: 'POST' })
-    router.push('/')
-  }
-
-  // Event handlers
-  const handleCreateEvent = async (values: EventFormValues) => {
-    try {
-      const res = await fetch('/api/admin/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        setEvents([...events, data.event])
-        setIsEventModalOpen(false)
-        addToast('Événement créé avec succès', 'success')
-      } else {
-        const data = await res.json()
-        throw new Error(data.error || 'Erreur de création')
-      }
-    } catch (err: any) {
-      addToast(err.message || 'Erreur de création', 'error')
-      throw err
-    }
-  }
-
-  const handleUpdateEvent = async (values: EventFormValues) => {
-    if (!editingEvent) return
-
-    try {
-      const res = await fetch(`/api/admin/events/${editingEvent.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      })
-
-      if (res.ok) {
-        const data = await res.json()
-        setEvents(events.map(e => e.id === editingEvent.id ? data.event : e))
-        setIsEventModalOpen(false)
-        setEditingEvent(null)
-        addToast('Événement mis à jour avec succès', 'success')
-      } else {
-        const data = await res.json()
-        throw new Error(data.error || 'Erreur de mise à jour')
-      }
-    } catch (err: any) {
-      addToast(err.message || 'Erreur de mise à jour', 'error')
-      throw err
-    }
-  }
-
-  const openEventModal = (event?: Event) => {
-    setEditingEvent(event || null)
-    setIsEventModalOpen(true)
-  }
-
-  const closeEventModal = () => {
-    setEditingEvent(null)
-    setIsEventModalOpen(false)
-  }
-
-  const getStatusBadge = (status: string) => {
-    const badges = {
-      DRAFT: { label: 'Brouillon', color: 'bg-gray-100 text-gray-800' },
-      ACTIVE: { label: 'Actif', color: 'bg-green-100 text-green-800' },
-      CLOSED: { label: 'Fermé', color: 'bg-red-100 text-red-800' },
-    }
-    const badge = badges[status as keyof typeof badges] || badges.DRAFT
-    return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${badge.color}`}>
-        {badge.label}
-      </span>
-    )
-  }
-
-  const getEventTypeLabel = (type: string) => {
-    switch (type) {
-      case 'PRODUCT_SALE': return 'Vente'
-      case 'MEAL': return 'Souper'
-      case 'RAFFLE': return 'Tombola'
-      default: return type
-    }
+  const formatPrice = (cents: number) => {
+    return (cents / 100).toFixed(0) + ' €'
   }
 
   const formatDate = (dateStr: string) => {
@@ -192,16 +85,14 @@ export default function AdminDashboardPage() {
     })
   }
 
-  const formatPrice = (cents: number) => {
-    return (cents / 100).toFixed(0) + ' €'
+  const getStatusBadge = (status: string) => {
+    const badges = {
+      DRAFT: { label: 'Brouillon', color: 'bg-gray-100 text-gray-700' },
+      ACTIVE: { label: 'Actif', color: 'bg-green-100 text-green-700' },
+      CLOSED: { label: 'Fermé', color: 'bg-red-100 text-red-700' },
+    }
+    return badges[status as keyof typeof badges] || badges.DRAFT
   }
-
-  // Filter events
-  const filteredEvents = events.filter((event) => {
-    if (filterSection !== 'all' && event.section.id !== filterSection) return false
-    if (filterStatus !== 'all' && event.status !== filterStatus) return false
-    return true
-  })
 
   // Calculate global stats
   const globalStats = {
@@ -211,46 +102,14 @@ export default function AdminDashboardPage() {
     totalRevenue: events.reduce((sum, e) => sum + e.stats.totalRevenueCents, 0),
   }
 
-  // Si mobile, utiliser le composant mobile dédié
-  if (isMobile) {
-    return (
-      <>
-        <MobileDashboard onCreateEvent={() => setIsEventModalOpen(true)} />
+  // Get recent events (last 5)
+  const recentEvents = events
+    .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+    .slice(0, 5)
 
-        {/* Event Modal pour mobile */}
-        <ResponsiveModal
-          isOpen={isEventModalOpen}
-          onClose={closeEventModal}
-          title={editingEvent ? 'Modifier l\'événement' : 'Nouvel événement'}
-          size="lg"
-        >
-          <EventForm
-            initialValues={
-              editingEvent
-                ? {
-                    name: editingEvent.name,
-                    slug: editingEvent.slug,
-                    description: '',
-                    start_date: editingEvent.start_date,
-                    end_date: editingEvent.end_date,
-                    section_id: editingEvent.section.id,
-                    status: editingEvent.status === 'CLOSED' ? 'ARCHIVED' : editingEvent.status,
-                    hero_image_url: '',
-                    hero_title: editingEvent.name,
-                    hero_subtitle: '',
-                    hero_show_stats: true,
-                    hero_cta_text: 'Commander maintenant',
-                  }
-                : undefined
-            }
-            onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent}
-            onCancel={closeEventModal}
-            sections={sections}
-            submitText={editingEvent ? 'Mettre à jour' : 'Créer'}
-          />
-        </ResponsiveModal>
-      </>
-    )
+  // Mobile version
+  if (isMobile) {
+    return <MobileDashboard onCreateEvent={() => router.push('/admin/events')} />
   }
 
   // Desktop version
@@ -258,269 +117,225 @@ export default function AdminDashboardPage() {
     <AdminLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard Admin
-              </h1>
-              <p className="text-sm text-gray-600 mt-1">
-                Gestion des événements multi-sections
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/admin/promo-codes">
-                <Button variant="secondary" size="sm">
-                  <Tag className="w-4 h-4 mr-2" />
-                  Codes promo
-                </Button>
-              </Link>
-              <Link href="/" target="_blank">
-                <Button variant="secondary" size="sm">
-                  Voir le site
-                </Button>
-              </Link>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Déconnexion
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Global Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Total événements</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {globalStats.totalEvents}
+                <h1 className="text-2xl font-bold text-gray-900">Vue d'ensemble</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Statistiques globales de tous les événements
                 </p>
               </div>
-              <Calendar className="w-10 h-10 text-amber-500" />
             </div>
           </div>
+        </header>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Événements actifs</p>
-                <p className="text-2xl font-bold text-green-600">
-                  {globalStats.activeEvents}
-                </p>
-              </div>
-              <BarChart3 className="w-10 h-10 text-green-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Total commandes</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {globalStats.totalOrders}
-                </p>
-              </div>
-              <ShoppingBag className="w-10 h-10 text-blue-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 mb-1">Revenus totaux</p>
-                <p className="text-2xl font-bold text-purple-600">
-                  {formatPrice(globalStats.totalRevenue)}
-                </p>
-              </div>
-              <Package className="w-10 h-10 text-purple-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Filters & Actions */}
-        <div className="bg-white rounded-lg shadow mb-6 p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <Filter className="w-5 h-5 text-gray-400" />
-
-              {/* Section Filter */}
-              <select
-                value={filterSection}
-                onChange={(e) => setFilterSection(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
-              >
-                <option value="all">Toutes les sections</option>
-                {sections.map((section) => (
-                  <option key={section.id} value={section.id}>
-                    {section.name}
-                  </option>
-                ))}
-              </select>
-
-              {/* Status Filter */}
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500"
-              >
-                <option value="all">Tous les statuts</option>
-                <option value="DRAFT">Brouillon</option>
-                <option value="ACTIVE">Actif</option>
-                <option value="CLOSED">Fermé</option>
-              </select>
-            </div>
-
-            <Button
-              className="bg-amber-600 hover:bg-amber-700"
-              onClick={() => openEventModal()}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Nouvel événement
-            </Button>
-          </div>
-        </div>
-
-        {/* Events List */}
-        {isLoading ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <p className="text-gray-500">Chargement...</p>
-          </div>
-        ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <p className="text-red-800">{error}</p>
-          </div>
-        ) : filteredEvents.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-12 text-center">
-            <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Aucun événement trouvé
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Créez votre premier événement pour commencer
-            </p>
-            <Button
-              className="bg-amber-600 hover:bg-amber-700"
-              onClick={() => openEventModal()}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Créer un événement
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-white rounded-lg shadow hover:shadow-md transition-shadow"
-              >
-                <div
-                  className="h-1 rounded-t-lg"
-                  style={{ backgroundColor: event.section.color }}
-                />
-                <div className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-bold text-gray-900">
-                          {event.name}
-                        </h3>
-                        {getStatusBadge(event.status)}
-                        <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
-                          {getEventTypeLabel(event.event_type)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          {event.section.name}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-4 h-4" />
-                          {formatDate(event.start_date)} → {formatDate(event.end_date)}
-                        </span>
-                      </div>
-                    </div>
-                    <Link href={`/admin/events/${event.id}`}>
-                      <Button variant="secondary" size="sm">
-                        Gérer
-                      </Button>
-                    </Link>
-                  </div>
-
-                  {/* Event Stats */}
-                  <div className="grid grid-cols-4 gap-4 pt-4 border-t border-gray-100">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-amber-600">
-                        {event.stats.productsCount}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Produits</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-blue-600">
-                        {event.stats.slotsCount}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Créneaux</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">
-                        {event.stats.ordersCount}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Commandes</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">
-                        {formatPrice(event.stats.totalRevenueCents)}
-                      </p>
-                      <p className="text-xs text-gray-600 mt-1">Revenus</p>
-                    </div>
-                  </div>
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Global Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Événements</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {globalStats.totalEvents}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {globalStats.activeEvents} actif{globalStats.activeEvents > 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-blue-600" />
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+            </div>
 
-      {/* Event Modal */}
-      <Modal
-        isOpen={isEventModalOpen}
-        onClose={closeEventModal}
-        title={editingEvent ? 'Modifier l\'événement' : 'Nouvel événement'}
-      >
-        <EventForm
-          initialValues={
-            editingEvent
-              ? {
-                  name: editingEvent.name,
-                  slug: editingEvent.slug,
-                  description: '',
-                  start_date: editingEvent.start_date,
-                  end_date: editingEvent.end_date,
-                  section_id: editingEvent.section.id,
-                  status: editingEvent.status === 'CLOSED' ? 'ARCHIVED' : editingEvent.status,
-                  hero_image_url: '',
-                  hero_title: editingEvent.name,
-                  hero_subtitle: '',
-                  hero_show_stats: true,
-                  hero_cta_text: 'Commander maintenant',
-                }
-              : undefined
-          }
-          onSubmit={editingEvent ? handleUpdateEvent : handleCreateEvent}
-          onCancel={closeEventModal}
-          sections={sections}
-          submitText={editingEvent ? 'Mettre à jour' : 'Créer'}
-        />
-      </Modal>
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Commandes</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {globalStats.totalOrders}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Toutes sections
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <ShoppingBag className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Revenus</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {formatPrice(globalStats.totalRevenue)}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Total généré
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Moyenne / Event</p>
+                  <p className="text-3xl font-bold text-gray-900">
+                    {events.length > 0 ? formatPrice(globalStats.totalRevenue / events.length) : '0 €'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Revenu moyen
+                  </p>
+                </div>
+                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
+                  <BarChart3 className="w-6 h-6 text-amber-600" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Events */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Événements récents</h2>
+                <Link
+                  href="/admin/events"
+                  className="text-sm font-medium text-[#003f5c] hover:text-[#2f6690] flex items-center gap-1"
+                >
+                  Voir tous
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            {isLoading ? (
+              <div className="p-12 text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003f5c] mx-auto"></div>
+              </div>
+            ) : recentEvents.length === 0 ? (
+              <div className="p-12 text-center">
+                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  Aucun événement
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Commencez par créer votre premier événement
+                </p>
+                <Link
+                  href="/admin/events"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#003f5c] text-white rounded-lg hover:bg-[#2f6690] transition-colors"
+                >
+                  Gérer les événements
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-200">
+                {recentEvents.map((event) => {
+                  const statusBadge = getStatusBadge(event.status)
+                  return (
+                    <Link
+                      key={event.id}
+                      href={`/admin/events/${event.id}`}
+                      className="block p-6 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        {/* Color indicator */}
+                        <div
+                          className="w-1 h-16 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: event.section.color }}
+                        />
+
+                        {/* Event info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-base font-semibold text-gray-900 truncate">
+                              {event.name}
+                            </h3>
+                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadge.color} flex-shrink-0`}>
+                              {statusBadge.label}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span>{event.section.name}</span>
+                            <span>•</span>
+                            <span>{formatDate(event.start_date)} → {formatDate(event.end_date)}</span>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="hidden md:flex items-center gap-8 flex-shrink-0">
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-gray-900">{event.stats.ordersCount}</div>
+                            <div className="text-xs text-gray-500">Commandes</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-lg font-bold text-green-600">{formatPrice(event.stats.totalRevenueCents)}</div>
+                            <div className="text-xs text-gray-500">Revenus</div>
+                          </div>
+                        </div>
+
+                        {/* Arrow */}
+                        <ArrowUpRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Link
+              href="/admin/events"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1">Gérer les événements</h3>
+                  <p className="text-sm text-gray-600">Créer et modifier des événements</p>
+                </div>
+                <Calendar className="w-8 h-8 text-[#003f5c] group-hover:scale-110 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/orders"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1">Voir les commandes</h3>
+                  <p className="text-sm text-gray-600">Consulter toutes les commandes</p>
+                </div>
+                <ShoppingBag className="w-8 h-8 text-[#003f5c] group-hover:scale-110 transition-transform" />
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/search"
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-1">Rechercher</h3>
+                  <p className="text-sm text-gray-600">Trouver une commande rapidement</p>
+                </div>
+                <Eye className="w-8 h-8 text-[#003f5c] group-hover:scale-110 transition-transform" />
+              </div>
+            </Link>
+          </div>
+        </main>
       </div>
     </AdminLayout>
   )

@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import {
-  ArrowLeft,
   Edit,
   Trash2,
   Plus,
@@ -647,14 +646,15 @@ export default function EventDetailPage() {
 
   if (error || !event) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Événement non trouvé'}</p>
-          <Link href="/admin/dashboard">
-            <Button variant="secondary">Retour au dashboard</Button>
-          </Link>
+      <AdminLayout>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Événement non trouvé</h3>
+            <p className="text-gray-600">{error || 'Cet événement n\'existe pas'}</p>
+          </div>
         </div>
-      </div>
+      </AdminLayout>
     )
   }
 
@@ -781,41 +781,33 @@ export default function EventDetailPage() {
     <AdminLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin/dashboard">
-                <Button variant="secondary" size="sm">
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">{event.name}</h1>
                 <p className="text-sm text-gray-600 mt-1">
                   {event.section.name} · {formatDate(event.start_date)} - {formatDate(event.end_date)}
                 </p>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Link href={`/event/${event.slug}`} target="_blank">
-                <Button variant="secondary" size="sm">
-                  Voir la page
+              <div className="flex items-center gap-2">
+                <Link href={`/event/${event.slug}`} target="_blank">
+                  <Button variant="secondary" size="sm">
+                    Voir la page
+                  </Button>
+                </Link>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleDeleteEvent}
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4" />
                 </Button>
-              </Link>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={handleDeleteEvent}
-                className="text-red-600 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Tabs */}

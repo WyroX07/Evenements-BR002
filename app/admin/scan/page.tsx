@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import { QrCode, ArrowLeft, Keyboard, Camera, Search } from 'lucide-react'
+import { QrCode, Keyboard, Camera, Search } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Button from '@/components/ui/Button'
 import MobileAdminLayout from '@/components/admin/mobile/MobileAdminLayout'
@@ -206,21 +206,14 @@ export default function AdminScanPage() {
     <AdminLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.push('/admin/dashboard')}
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Retour au dashboard
-            </button>
-            <h1 className="text-xl font-bold text-gray-900">Scanner QR Code</h1>
-            <div className="w-32" />
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Scanner QR</h1>
+              <p className="text-sm text-gray-600 mt-1">Scanner les codes de commande</p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

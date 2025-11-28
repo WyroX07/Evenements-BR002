@@ -6,7 +6,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import MobileEvents from '@/components/admin/mobile/MobileEvents'
 import AdminLayout from '@/components/admin/AdminLayout'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Plus, ChevronRight, Filter } from 'lucide-react'
+import { Calendar, Plus, ChevronRight } from 'lucide-react'
 
 interface Section {
   id: string
@@ -129,17 +129,14 @@ export default function EventsPage() {
     <AdminLayout>
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <header className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Link
-                  href="/admin/dashboard"
-                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Retour au dashboard
-                </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Événements</h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Gérer tous les événements
+                </p>
               </div>
               <button
                 onClick={() => router.push('/admin/events/new')}
