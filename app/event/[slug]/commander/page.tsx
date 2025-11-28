@@ -5,9 +5,8 @@ import { useParams, useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { ArrowLeft, Loader2, ShoppingCart, Truck, Calendar, User, CreditCard, CheckCircle, ChevronDown, Clock, Users as UsersIcon, Leaf, Sprout, AlertTriangle, Package } from 'lucide-react'
+import { ArrowLeft, Loader2, ShoppingCart, Truck, Calendar, User, CreditCard, CheckCircle, ChevronDown, Clock, Users as UsersIcon } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import PaymentMethodsBadge from '@/components/payment/PaymentMethodsBadge'
@@ -16,6 +15,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { useDeviceDetection } from './hooks/useDeviceDetection'
 import MobileCommander from './MobileCommander'
 import ProductDetailsModal from './components/ProductDetailsModal'
+import MobileProductCard from './components/MobileProductCard'
 
 // Helper function to get allergen label in French
 const getAllergenLabel = (allergenCode: string): string => {
@@ -713,163 +713,22 @@ export default function CommanderPage() {
                   Sélectionnez vos produits
                 </h2>
 
-                {/* Products Grid - Compact cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {event.products.map(product => {
-                    const qty = cart[product.id] || 0
-                    const isOutOfStock = product.stock !== null && product.stock <= 0
-
-                    return (
-                      <div
-                        key={product.id}
-                        className="group relative bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-amber-400 hover:shadow-lg transition-all duration-200 flex flex-col"
-                      >
-                        {/* Product Image - compact */}
-                        {product.image_url && (
-                          <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 cursor-pointer" onClick={() => setSelectedProduct(product)}>
-                            <Image
-                              src={product.image_url}
-                              alt={product.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-
-                        {/* Product Info - compact */}
-                        <div className="p-4 flex-1 flex flex-col">
-                          <h3 className="font-semibold text-base text-gray-900 mb-1 line-clamp-1 cursor-pointer hover:text-amber-600" onClick={() => setSelectedProduct(product)}>
-                            {product.name}
-                          </h3>
-
-                          <div className="flex items-baseline gap-2 mb-2">
-                            <span className="text-xl font-bold text-amber-600">
-                              {(product.price_cents / 100).toFixed(2)} €
-                            </span>
-                            {product.stock !== null && (
-                              <span className="text-xs text-gray-500">
-                                Stock: {product.stock - qty}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Badges - compact */}
-                          {(product.is_vegetarian || product.is_vegan) && (
-                            <div className="flex gap-1 mb-3">
-                              {product.is_vegan && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                  <Sprout className="w-3 h-3" />
-                                  Vegan
-                                </span>
-                              )}
-                              {product.is_vegetarian && !product.is_vegan && (
-                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
-                                  <Leaf className="w-3 h-3" />
-                                  Végé
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {/* Spacer to push buttons to bottom */}
-                          <div className="flex-1"></div>
-
-                          {/* Buttons at bottom */}
-                          <div className="space-y-2 mt-auto">
-                            {qty === 0 ? (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => addToCart(product.id)}
-                                  disabled={isOutOfStock}
-                                  className="w-full py-2 px-4 bg-amber-600 hover:bg-amber-700 disabled:bg-gray-300 text-white font-medium rounded-lg transition-colors text-sm"
-                                >
-                                  {isOutOfStock ? 'Rupture' : 'Ajouter'}
-                                </button>
-                                {product.product_type === 'ITEM' && product.stock !== null && product.stock >= 6 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => updateQuantity(product.id, 6)}
-                                    className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors text-xs"
-                                  >
-                                    + Caisse (6)
-                                  </button>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <div className="flex items-center justify-between gap-2 bg-gray-50 rounded-lg p-2">
-                                  <button
-                                    type="button"
-                                    onClick={() => removeFromCart(product.id)}
-                                    className="w-8 h-8 rounded-full bg-white border border-gray-300 hover:border-red-500 hover:bg-red-50 text-gray-700 hover:text-red-600 flex items-center justify-center font-bold transition-all"
-                                  >
-                                    -
-                                  </button>
-                                  <span className="font-bold text-lg text-gray-900">
-                                    {qty}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => addToCart(product.id)}
-                                    disabled={product.stock !== null && qty >= product.stock}
-                                    className={`w-8 h-8 rounded-full flex items-center justify-center font-bold transition-all ${
-                                      product.stock !== null && qty >= product.stock
-                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300'
-                                        : 'bg-amber-600 hover:bg-amber-700 text-white'
-                                    }`}
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                                {product.product_type === 'ITEM' && product.stock !== null && qty + 6 <= product.stock && (
-                                  <button
-                                    type="button"
-                                    onClick={() => updateQuantity(product.id, qty + 6)}
-                                    className="w-full py-1.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors text-xs"
-                                  >
-                                    + Caisse (6)
-                                  </button>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+                {/* Products List using MobileProductCard component */}
+                <div className="space-y-3">
+                  {event.products.map(product => (
+                    <MobileProductCard
+                      key={product.id}
+                      product={product}
+                      quantity={cart[product.id] || 0}
+                      onQuantityChange={(qty) => updateQuantity(product.id, qty)}
+                      onShowDetails={() => setSelectedProduct(product)}
+                    />
+                  ))}
                 </div>
 
                 {event.config.discount_10for9 && (
                   <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 text-green-700 rounded-lg text-sm font-medium">
                     Remise spéciale : 10 bouteilles pour le prix de 9 !
-                  </div>
-                )}
-
-                {/* Legend for allergens and dietary info */}
-                {event.products.some(p => p.is_vegetarian || p.is_vegan || (p.allergens && p.allergens.length > 0)) && (
-                  <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-                    <h4 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">Légende</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-gray-600">
-                      {event.products.some(p => p.is_vegan) && (
-                        <div className="flex items-center gap-2">
-                          <Sprout className="w-4 h-4 text-green-600" />
-                          <span>Convient aux végétaliens (vegan)</span>
-                        </div>
-                      )}
-                      {event.products.some(p => p.is_vegetarian) && (
-                        <div className="flex items-center gap-2">
-                          <Leaf className="w-4 h-4 text-green-600" />
-                          <span>Convient aux végétariens</span>
-                        </div>
-                      )}
-                      {event.products.some(p => p.allergens && p.allergens.length > 0) && (
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="w-4 h-4 text-orange-600" />
-                          <span>Contient des allergènes (voir badge)</span>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 )}
               </div>

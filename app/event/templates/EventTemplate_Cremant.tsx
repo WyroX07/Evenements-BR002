@@ -354,58 +354,28 @@ export default function EventTemplateCremant({
 
             {/* Carousel Container */}
             <div className="relative">
-              {/* Navigation Buttons - Desktop only */}
-              {activeProducts.length > 1 && (
-                <>
-                  <button
-                    onClick={() => scrollCarousel('left')}
-                    disabled={currentSlide === 0}
-                    className="hidden md:block absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
-                    aria-label="Produit précédent"
-                  >
-                    <ChevronLeft className="w-6 h-6 text-gray-800" />
-                  </button>
-                  <button
-                    onClick={() => scrollCarousel('right')}
-                    disabled={currentSlide === activeProducts.length - 1}
-                    className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/95 hover:bg-white shadow-2xl rounded-full p-4 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-200"
-                    aria-label="Produit suivant"
-                  >
-                    <ChevronRight className="w-6 h-6 text-gray-800" />
-                  </button>
-                </>
-              )}
+              {/* Desktop Carousel - same approach as mobile */}
+              <div className="hidden md:block relative">
+                {/* Fade overlays on sides */}
+                <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-white via-white/80 to-transparent z-10 pointer-events-none"></div>
+                <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-white via-white/80 to-transparent z-10 pointer-events-none"></div>
 
-              {/* Fade overlays on sides - Desktop only */}
-              <div className="hidden md:block absolute left-0 top-0 bottom-0 w-48 bg-gradient-to-r from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
-              <div className="hidden md:block absolute right-0 top-0 bottom-0 w-48 bg-gradient-to-l from-white via-white/90 to-transparent z-10 pointer-events-none"></div>
-
-              {/* Carousel - Desktop version with transform-based sliding */}
-              <div className="hidden md:block overflow-hidden relative">
                 <div
-                  className="flex gap-10 pb-4 transition-transform duration-300 ease-out"
+                  ref={carouselRef}
+                  className="flex overflow-x-auto gap-10 pb-4 snap-x snap-mandatory scroll-smooth px-16"
                   style={{
-                    transform: `translateX(calc(50% - ${currentSlide * (520 + 40)}px - 260px))`,
+                    scrollbarWidth: 'none',
+                    msOverflowStyle: 'none',
+                    WebkitOverflowScrolling: 'touch',
                   }}
                 >
-              {activeProducts.map((product, index) => {
-                const isCenter = index === currentSlide
-                const isAdjacent = Math.abs(index - currentSlide) === 1
-
-                return (
+              {activeProducts.map((product, index) => (
                 <div
                   key={product.id}
                   onClick={() => handleProductClick(product)}
-                  className={`carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 cursor-pointer flex-shrink-0 w-[420px] md:w-[450px] lg:w-[500px] transition-all duration-300 ${
-                    isCenter
-                      ? 'opacity-100 scale-100 shadow-xl'
-                      : isAdjacent
-                      ? 'opacity-40 scale-95'
-                      : 'opacity-0 scale-90'
-                  }`}
+                  className="carousel-card group relative bg-gradient-to-b from-white to-stone-50/50 overflow-hidden border border-stone-200/50 hover:border-amber-600/30 transition-all duration-500 cursor-pointer hover:shadow-xl flex-shrink-0 w-[420px] md:w-[450px] lg:w-[500px] snap-center"
                   style={{
                     animation: `fadeInUp 0.6s ease-out ${index * 0.15}s backwards`,
-                    filter: isCenter ? 'none' : isAdjacent ? 'blur(1px) grayscale(50%)' : 'blur(2px) grayscale(100%)',
                   }}
                 >
                   {/* Decorative top line */}
@@ -539,8 +509,7 @@ export default function EventTemplateCremant({
                   {/* Decorative bottom accent */}
                   <div className="h-1 bg-gradient-to-r from-transparent via-amber-600/20 to-transparent group-hover:via-amber-600/40 transition-all duration-500"></div>
                 </div>
-                )
-              })}
+              ))}
                 </div>
               </div>
 
