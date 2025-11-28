@@ -146,7 +146,7 @@ export default function HomePage() {
           <div className="relative z-10 flex-1 flex flex-col items-center justify-end px-6 pb-20 pt-16">
             {/* Baseline - Font identitaire avec espacement réduit */}
             <h1 className="opacity-0 animate-fade-in animation-delay-300 text-6xl font-black text-white text-center leading-[1.0] tracking-tight mb-6">
-              Faites vivre<br />l'unité & rassemblez<br />
+              Faites vivre<br /><span className="text-amber-300">l'unité</span> & rassemblez<br />
               <span className="text-amber-300">Ecaussinnes</span>
             </h1>
 
