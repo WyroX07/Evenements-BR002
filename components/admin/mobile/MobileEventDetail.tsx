@@ -134,7 +134,10 @@ export default function MobileEventDetail({
   }
 
   const statusBadge = getStatusBadge(event.status)
-  const totalRevenue = orders.reduce((sum, order) => sum + order.total_cents, 0)
+  // Exclude CANCELLED orders from revenue calculation
+  const totalRevenue = orders
+    .filter(order => order.status !== 'CANCELLED')
+    .reduce((sum, order) => sum + order.total_cents, 0)
 
   return (
     <MobileAdminLayout>

@@ -117,11 +117,12 @@ export async function GET(request: NextRequest) {
           .select('*', { count: 'exact', head: true })
           .eq('event_id', event.id)
 
-        // Calculer le revenu total (somme des total_cents de toutes les commandes)
+        // Calculer le revenu total (somme des total_cents de toutes les commandes, excluant les annulées)
         const { data: orders } = await supabase
           .from('orders')
-          .select('total_cents')
+          .select('total_cents, status')
           .eq('event_id', event.id)
+          .neq('status', 'CANCELLED') // Exclude cancelled orders from revenue
 
         const totalRevenueCents = (orders || []).reduce((sum: number, order: any) => sum + (order.total_cents || 0), 0)
 

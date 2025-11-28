@@ -86,6 +86,21 @@ export async function PATCH(
     const validatedData = updateOrderSchema.parse(body)
     const supabase = createServerClient() as any
 
+    // Get current order to check previous status
+    const { data: currentOrder, error: fetchError } = await supabase
+      .from('orders')
+      .select('status')
+      .eq('id', id)
+      .single()
+
+    if (fetchError || !currentOrder) {
+      return NextResponse.json({ error: 'Commande introuvable' }, { status: 404 })
+    }
+
+    const oldStatus = currentOrder.status
+    const newStatus = validatedData.status
+
+    // Update order status
     const { data: order, error } = await supabase
       .from('orders')
       .update(validatedData)
@@ -95,6 +110,44 @@ export async function PATCH(
 
     if (error) {
       return NextResponse.json({ error: 'Erreur mise a jour' }, { status: 500 })
+    }
+
+    // Handle stock restoration/deduction based on status change
+    if (newStatus && oldStatus !== newStatus) {
+      // Get order items
+      const { data: orderItems } = await supabase
+        .from('order_items')
+        .select('product_id, qty')
+        .eq('order_id', id)
+
+      if (orderItems && orderItems.length > 0) {
+        // If changing TO cancelled: restore stock
+        if (newStatus === 'CANCELLED' && oldStatus !== 'CANCELLED') {
+          console.log(`[PATCH order ${id}] Restoring stock for cancelled order`)
+          for (const item of orderItems) {
+            const { error: stockError } = await supabase.rpc('increment_product_stock', {
+              product_id: item.product_id,
+              quantity: item.qty
+            })
+            if (stockError) {
+              console.error('[PATCH order] Error restoring stock:', stockError)
+            }
+          }
+        }
+        // If changing FROM cancelled to active status: deduct stock again
+        else if (oldStatus === 'CANCELLED' && newStatus !== 'CANCELLED') {
+          console.log(`[PATCH order ${id}] Deducting stock for reactivated order`)
+          for (const item of orderItems) {
+            const { error: stockError } = await supabase.rpc('decrement_product_stock', {
+              product_id: item.product_id,
+              quantity: item.qty
+            })
+            if (stockError) {
+              console.error('[PATCH order] Error deducting stock:', stockError)
+            }
+          }
+        }
+      }
     }
 
     return NextResponse.json({ order })
