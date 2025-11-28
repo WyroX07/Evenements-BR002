@@ -60,9 +60,9 @@ export default function MobileAdminLayout({ children }: MobileAdminLayoutProps) 
               <button
                 key={`mobile-nav-${item.label}-${index}`}
                 onClick={() => router.push(item.href)}
-                className={`flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
+                className={`relative flex flex-col items-center justify-center gap-1 transition-all active:scale-95 ${
                   item.active
-                    ? 'text-[#003f5c]'
+                    ? 'text-[#003f5c] bg-blue-50'
                     : 'text-gray-500 active:text-[#003f5c]'
                 }`}
               >
@@ -71,7 +71,7 @@ export default function MobileAdminLayout({ children }: MobileAdminLayoutProps) 
                   {item.label}
                 </span>
                 {item.active && (
-                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-[#003f5c] rounded-t-full" />
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-[#003f5c] rounded-t-full" />
                 )}
               </button>
             )
