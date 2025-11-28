@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import MobileEvents from '@/components/admin/mobile/MobileEvents'
+import AdminLayout from '@/components/admin/AdminLayout'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Plus, ChevronRight, Filter } from 'lucide-react'
 
@@ -125,32 +126,33 @@ export default function EventsPage() {
 
   // Desktop version
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/admin/dashboard"
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/admin/dashboard"
+                  className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Retour au dashboard
+                </Link>
+              </div>
+              <button
+                onClick={() => router.push('/admin/events/new')}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#003f5c] text-white rounded-lg hover:bg-[#2f6690] transition-colors"
               >
-                <ArrowLeft className="w-4 h-4" />
-                Retour au dashboard
-              </Link>
+                <Plus className="w-4 h-4" />
+                Nouvel événement
+              </button>
             </div>
-            <button
-              onClick={() => router.push('/admin/events/new')}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#003f5c] text-white rounded-lg hover:bg-[#2f6690] transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Nouvel événement
-            </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Title & Filters */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -304,7 +306,8 @@ export default function EventsPage() {
             </table>
           </div>
         )}
-      </main>
-    </div>
+        </main>
+      </div>
+    </AdminLayout>
   )
 }

@@ -21,6 +21,7 @@ import EventForm, { EventFormValues } from '@/components/forms/EventForm'
 import { useToast } from '@/contexts/ToastContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import MobileDashboard from '@/components/admin/mobile/MobileDashboard'
+import AdminLayout from '@/components/admin/AdminLayout'
 
 interface Section {
   id: string
@@ -254,8 +255,9 @@ export default function AdminDashboardPage() {
 
   // Desktop version
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
       <header className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -519,6 +521,7 @@ export default function AdminDashboardPage() {
           submitText={editingEvent ? 'Mettre à jour' : 'Créer'}
         />
       </Modal>
-    </div>
+      </div>
+    </AdminLayout>
   )
 }

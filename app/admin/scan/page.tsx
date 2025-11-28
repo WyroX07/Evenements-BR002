@@ -7,6 +7,7 @@ import { QrCode, ArrowLeft, Keyboard, Camera, Search } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Button from '@/components/ui/Button'
 import MobileAdminLayout from '@/components/admin/mobile/MobileAdminLayout'
+import AdminLayout from '@/components/admin/AdminLayout'
 
 // Dynamically import QR scanner to avoid SSR issues
 const QrReader = dynamic(() => import('react-qr-reader').then(mod => mod.QrReader), { ssr: false })
@@ -202,10 +203,11 @@ export default function AdminScanPage() {
 
   // Desktop version
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={() => router.push('/admin/dashboard')}
@@ -319,7 +321,8 @@ export default function AdminScanPage() {
             </div>
           </div>
         </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </AdminLayout>
   )
 }

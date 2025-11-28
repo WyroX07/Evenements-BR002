@@ -30,6 +30,7 @@ import EventInfoForm, { EventInfoFormValues } from '@/components/forms/EventInfo
 import { useToast } from '@/contexts/ToastContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import MobileEventDetail from '@/components/admin/mobile/MobileEventDetail'
+import AdminLayout from '@/components/admin/AdminLayout'
 
 interface Section {
   id: string
@@ -777,10 +778,11 @@ export default function EventDetailPage() {
 
   // Desktop version
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <AdminLayout>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/admin/dashboard">
@@ -1604,6 +1606,7 @@ export default function EventDetailPage() {
           }}
         />
       )}
-    </div>
+      </div>
+    </AdminLayout>
   )
 }
