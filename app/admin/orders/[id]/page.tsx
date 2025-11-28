@@ -17,7 +17,7 @@ interface Product {
 interface OrderItem {
   id: string
   product_id: string
-  quantity: number
+  qty: number // Database column is 'qty', not 'quantity'
   unit_price_cents: number
   product: Product
 }
@@ -280,11 +280,11 @@ export default function AdminOrderDetailPage() {
                   <div className="flex-1 pr-3">
                     <p className="font-semibold text-gray-900 text-sm leading-tight">{item.product.name}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {item.quantity} × {formatPrice(item.unit_price_cents)}
+                      {item.qty} × {formatPrice(item.unit_price_cents)}
                     </p>
                   </div>
                   <p className="font-bold text-gray-900 text-base tabular-nums">
-                    {formatPrice(item.quantity * item.unit_price_cents)}
+                    {formatPrice(item.qty * item.unit_price_cents)}
                   </p>
                 </div>
               ))}
@@ -517,11 +517,11 @@ export default function AdminOrderDetailPage() {
                   <div>
                     <p className="font-medium text-gray-900">{item.product.name}</p>
                     <p className="text-sm text-gray-500">
-                      {item.quantity} × {formatPrice(item.unit_price_cents)}
+                      {item.qty} × {formatPrice(item.unit_price_cents)}
                     </p>
                   </div>
                   <p className="font-semibold text-gray-900">
-                    {formatPrice(item.quantity * item.unit_price_cents)}
+                    {formatPrice(item.qty * item.unit_price_cents)}
                   </p>
                 </div>
               ))}
