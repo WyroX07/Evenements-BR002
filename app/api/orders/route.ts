@@ -288,8 +288,7 @@ export async function POST(request: NextRequest) {
       return {
         order_id: order.id,
         product_id: item.cuveeId,
-        product_name: product.name, // Add product name for display
-        qty: item.qty, // Database column is 'qty', not 'quantity'
+        qty: item.qty,
         unit_price_cents: item.unitPriceCents,
         line_total_cents: item.qty * item.unitPriceCents,
       }
@@ -329,7 +328,7 @@ export async function POST(request: NextRequest) {
 
     // 13. Préparer et envoyer l'email de confirmation
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const confirmationUrl = `${baseUrl}/merci/${order.code}`
+    const confirmationUrl = `${baseUrl}/commande/${order.code}`
 
     // Récupérer les informations du slot si applicable
     let slotInfo: { date: string; time: string } | null = null

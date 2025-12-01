@@ -97,6 +97,12 @@ export default function MobileCommander() {
   const [expandedDate, setExpandedDate] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
+  // Promo code states
+  const [promoCode, setPromoCode] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountCents: number } | null>(null)
+  const [promoError, setPromoError] = useState('')
+  const [validatingPromo, setValidatingPromo] = useState(false)
+
   // Load event data
   useEffect(() => {
     const fetchEvent = async () => {
@@ -162,6 +168,52 @@ export default function MobileCommander() {
     if (modalProduct) {
       handleQuantityChange(modalProduct.id, qty)
     }
+  }
+
+  // Promo code functions
+  const applyPromoCode = async () => {
+    if (!promoCode.trim()) {
+      setPromoError('Veuillez entrer un code promo')
+      return
+    }
+
+    setValidatingPromo(true)
+    setPromoError('')
+
+    try {
+      const response = await fetch('/api/promo-codes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode.trim() }),
+      })
+
+      const result = await response.json()
+
+      if (result.valid && result.promoCode) {
+        setAppliedPromo({
+          code: result.promoCode.code,
+          discountCents: result.promoCode.discountCents,
+        })
+        addToast(`Code promo "${result.promoCode.code}" appliqué !`, 'success')
+        setPromoCode('')
+      } else {
+        setPromoError(result.error || 'Code promo invalide')
+        setAppliedPromo(null)
+      }
+    } catch (error) {
+      console.error('Error validating promo code:', error)
+      setPromoError('Erreur lors de la validation du code')
+      setAppliedPromo(null)
+    } finally {
+      setValidatingPromo(false)
+    }
+  }
+
+  const removePromoCode = () => {
+    setAppliedPromo(null)
+    setPromoCode('')
+    setPromoError('')
+    addToast('Code promo retiré', 'info')
   }
 
   const handleContinue = () => {
@@ -267,16 +319,13 @@ export default function MobileCommander() {
         }
       })
 
-      // Map ON_SITE to PICKUP for API compatibility
-      const deliveryType = formData.deliveryType === 'ON_SITE' ? 'PICKUP' : formData.deliveryType
-
       const orderData = {
         eventId: event?.id,
         customerName: formData.customerName,
         email: formData.email,
         phone: formData.phone, // Will be formatted server-side after validation
         notes: formData.notes || undefined,
-        deliveryType,
+        deliveryType: formData.deliveryType,
         slotId: formData.slotId || null,
         address: formData.address || null,
         city: formData.city || null,
@@ -284,6 +333,7 @@ export default function MobileCommander() {
         paymentMethod: formData.paymentMethod,
         items,
         rgpdConsent: formData.rgpdConsent,
+        promoCode: appliedPromo?.code,
       }
 
       const res = await fetch('/api/orders', {
@@ -298,8 +348,12 @@ export default function MobileCommander() {
       }
 
       const data = await res.json()
+
+      // Clear cart from localStorage
+      localStorage.removeItem(`cart_${slug}`)
+
       addToast('Commande confirmée !', 'success')
-      router.push(`/order/${data.order.id}/confirmation`)
+      router.push(`/merci/${data.order.code}`)
     } catch (error) {
       console.error('Error submitting order:', error)
       addToast(error instanceof Error ? error.message : 'Erreur lors de la soumission de la commande', 'error')
@@ -334,12 +388,27 @@ export default function MobileCommander() {
 
   // Calculations
   const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0)
-  const totalCents = event
+  const subtotalCents = event
     ? Object.entries(cart).reduce((sum, [productId, qty]) => {
         const product = event.products.find(p => p.id === productId)
         return sum + (product ? product.price_cents * qty : 0)
       }, 0)
     : 0
+
+  // Calculate discount (10 for 9 if enabled)
+  let discountCents = 0
+  if (event?.config.discount_10for9 && totalItems >= 10) {
+    const freeBottles = Math.floor(totalItems / 10)
+    if (freeBottles > 0 && subtotalCents > 0) {
+      const avgPrice = subtotalCents / totalItems
+      const rawDiscount = freeBottles * avgPrice
+      discountCents = Math.round(rawDiscount / 100) * 100
+    }
+  }
+
+  const deliveryFeeCents = formData.deliveryType === 'DELIVERY' && event ? event.config.delivery_fee_cents : 0
+  const promoDiscountCents = appliedPromo ? appliedPromo.discountCents : 0
+  const totalCents = Math.max(0, subtotalCents - discountCents + deliveryFeeCents - promoDiscountCents)
 
   // Loading state
   if (loading) {
@@ -864,6 +933,65 @@ export default function MobileCommander() {
                 </div>
               </button>
             </div>
+
+            {/* Promo Code Section */}
+            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <h3 className="font-bold text-gray-900 mb-3 text-sm">Code promo</h3>
+
+              {appliedPromo ? (
+                <div className="flex items-center justify-between bg-white p-3 rounded-lg border-2 border-green-500">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-green-700 text-sm">{appliedPromo.code}</p>
+                      <p className="text-xs text-gray-600">
+                        Réduction de {(appliedPromo.discountCents / 100).toFixed(2)} €
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removePromoCode}
+                    className="text-red-600 hover:text-red-700 font-medium text-xs px-2 py-1"
+                  >
+                    Retirer
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={promoCode}
+                      onChange={(e) => {
+                        setPromoCode(e.target.value.toUpperCase())
+                        setPromoError('')
+                      }}
+                      placeholder="Entrez votre code"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm"
+                      disabled={validatingPromo}
+                    />
+                    <button
+                      type="button"
+                      onClick={applyPromoCode}
+                      disabled={!promoCode.trim() || validatingPromo}
+                      className="px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 transition-transform"
+                    >
+                      {validatingPromo ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        'Appliquer'
+                      )}
+                    </button>
+                  </div>
+                  {promoError && (
+                    <p className="text-xs text-red-600">{promoError}</p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -898,11 +1026,39 @@ export default function MobileCommander() {
                 })}
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-bold text-gray-900">Total</span>
-                <span className="text-xl font-bold text-amber-700">
-                  {formatPrice(totalCents + (formData.deliveryType === 'DELIVERY' ? event.config.delivery_fee_cents : 0))}
-                </span>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Sous-total</span>
+                  <span className="font-semibold">{formatPrice(subtotalCents)}</span>
+                </div>
+
+                {discountCents > 0 && (
+                  <div className="flex justify-between text-sm text-green-600">
+                    <span>Remise 10 pour 9</span>
+                    <span className="font-semibold">-{formatPrice(discountCents)}</span>
+                  </div>
+                )}
+
+                {deliveryFeeCents > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Frais de livraison</span>
+                    <span className="font-semibold">{formatPrice(deliveryFeeCents)}</span>
+                  </div>
+                )}
+
+                {promoDiscountCents > 0 && (
+                  <div className="flex justify-between text-sm text-amber-600">
+                    <span>Code promo {appliedPromo?.code}</span>
+                    <span className="font-semibold">-{formatPrice(promoDiscountCents)}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                  <span className="font-bold text-gray-900">Total</span>
+                  <span className="text-xl font-bold text-amber-700">
+                    {formatPrice(totalCents)}
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -926,7 +1082,7 @@ export default function MobileCommander() {
 
       {/* Sticky Footer avec panier */}
       <MobileStickyFooter
-        totalCents={totalCents + (formData.deliveryType === 'DELIVERY' && event ? event.config.delivery_fee_cents : 0)}
+        totalCents={totalCents}
         itemCount={totalItems}
         buttonLabel={
           currentStep === 5
@@ -944,8 +1100,12 @@ export default function MobileCommander() {
         additionalInfo={
           currentStep === 0 && totalItems > 0
             ? `${totalItems} article${totalItems > 1 ? 's' : ''} dans le panier`
-            : formData.deliveryType === 'DELIVERY' && event && event.config.delivery_fee_cents > 0
-            ? `+ ${formatPrice(event.config.delivery_fee_cents)} frais de livraison`
+            : (deliveryFeeCents > 0 || promoDiscountCents > 0 || discountCents > 0)
+            ? [
+                deliveryFeeCents > 0 && `+ ${formatPrice(deliveryFeeCents)} livraison`,
+                discountCents > 0 && `- ${formatPrice(discountCents)} remise`,
+                promoDiscountCents > 0 && `- ${formatPrice(promoDiscountCents)} promo`
+              ].filter(Boolean).join(' • ')
             : undefined
         }
       />

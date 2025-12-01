@@ -32,11 +32,11 @@ export const createOrderSchema = z
     notes: z.string().max(500, 'Les notes sont limitées à 500 caractères').optional(),
 
     // Type de livraison
-    deliveryType: z.enum(['PICKUP', 'DELIVERY'], {
+    deliveryType: z.enum(['PICKUP', 'DELIVERY', 'ON_SITE'], {
       required_error: 'Le type de livraison est requis',
     }),
 
-    // Créneau (obligatoire si PICKUP)
+    // Créneau (obligatoire si PICKUP ou ON_SITE)
     slotId: z.string().uuid('ID de créneau invalide').nullish(),
 
     // Adresse (obligatoire si DELIVERY)
@@ -70,13 +70,13 @@ export const createOrderSchema = z
   })
   .refine(
     (data) => {
-      if (data.deliveryType === 'PICKUP') {
+      if (data.deliveryType === 'PICKUP' || data.deliveryType === 'ON_SITE') {
         return data.slotId !== null
       }
       return true
     },
     {
-      message: 'Un créneau est requis pour un retrait',
+      message: 'Un créneau est requis pour un retrait ou consommation sur place',
       path: ['slotId'],
     }
   )
@@ -178,7 +178,7 @@ export const exportFiltersSchema = z.object({
   status: z
     .enum(['PENDING', 'PAID', 'PREPARED', 'DELIVERED', 'CANCELLED'])
     .optional(),
-  deliveryType: z.enum(['PICKUP', 'DELIVERY']).optional(),
+  deliveryType: z.enum(['PICKUP', 'DELIVERY', 'ON_SITE']).optional(),
   slotId: z.string().uuid().optional(),
   dateFrom: z.string().optional(),
   dateTo: z.string().optional(),

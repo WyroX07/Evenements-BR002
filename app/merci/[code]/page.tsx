@@ -163,17 +163,6 @@ export default async function ConfirmationPage({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-white to-amber-50">
-      {/* Header */}
-      <header className="bg-white border-b border-amber-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href="/"
-            className="text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            ← Retour à l'accueil
-          </Link>
-        </div>
-      </header>
 
       {/* Success Message */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -299,88 +288,140 @@ export default async function ConfirmationPage({
                 Détail de la commande
               </h2>
               <div className="bg-gray-50 rounded-lg p-4">
-                <table className="w-full">
-                  <thead className="border-b border-gray-200">
-                    <tr>
-                      <th className="text-left py-2 text-sm font-medium text-gray-600">
-                        Produit
-                      </th>
-                      <th className="text-center py-2 text-sm font-medium text-gray-600">
-                        Qté
-                      </th>
-                      <th className="text-right py-2 text-sm font-medium text-gray-600">
-                        Prix unit.
-                      </th>
-                      <th className="text-right py-2 text-sm font-medium text-gray-600">
-                        Total
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {items.map((item) => (
-                      <tr key={item.id}>
-                        <td className="py-3 text-gray-900">{item.product.name}</td>
-                        <td className="py-3 text-center text-gray-700">
-                          {item.quantity}
-                        </td>
-                        <td className="py-3 text-right text-gray-700">
-                          {formatPrice(item.unit_price_cents)}
-                        </td>
-                        <td className="py-3 text-right font-medium text-gray-900">
-                          {formatPrice(item.unit_price_cents * item.quantity)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="border-t-2 border-gray-300">
-                    <tr>
-                      <td colSpan={3} className="py-2 text-right text-gray-600">
-                        Sous-total :
-                      </td>
-                      <td className="py-2 text-right font-medium text-gray-900">
-                        {formatPrice(subtotal)}
-                      </td>
-                    </tr>
-                    {discount > 0 && (
+                {/* Desktop table */}
+                <div className="hidden sm:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="border-b border-gray-200">
                       <tr>
-                        <td colSpan={3} className="py-2 text-right text-green-600">
-                          Remise 12 pour 11 :
-                        </td>
-                        <td className="py-2 text-right font-medium text-green-600">
-                          -{formatPrice(discount)}
-                        </td>
+                        <th className="text-left py-2 text-sm font-medium text-gray-600">
+                          Produit
+                        </th>
+                        <th className="text-center py-2 text-sm font-medium text-gray-600">
+                          Qté
+                        </th>
+                        <th className="text-right py-2 text-sm font-medium text-gray-600">
+                          Prix unit.
+                        </th>
+                        <th className="text-right py-2 text-sm font-medium text-gray-600">
+                          Total
+                        </th>
                       </tr>
-                    )}
-                    {promoDiscount > 0 && (
-                      <tr>
-                        <td colSpan={3} className="py-2 text-right text-amber-600">
-                          Code promo {order.promo_code} :
-                        </td>
-                        <td className="py-2 text-right font-medium text-amber-600">
-                          -{formatPrice(promoDiscount)}
-                        </td>
-                      </tr>
-                    )}
-                    {deliveryFee > 0 && (
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {items.map((item) => (
+                        <tr key={item.id}>
+                          <td className="py-3 text-gray-900">{item.product.name}</td>
+                          <td className="py-3 text-center text-gray-700">
+                            {item.quantity}
+                          </td>
+                          <td className="py-3 text-right text-gray-700">
+                            {formatPrice(item.unit_price_cents)}
+                          </td>
+                          <td className="py-3 text-right font-medium text-gray-900">
+                            {formatPrice(item.unit_price_cents * item.quantity)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="border-t-2 border-gray-300">
                       <tr>
                         <td colSpan={3} className="py-2 text-right text-gray-600">
-                          Frais de livraison :
+                          Sous-total :
                         </td>
                         <td className="py-2 text-right font-medium text-gray-900">
-                          {formatPrice(deliveryFee)}
+                          {formatPrice(subtotal)}
                         </td>
                       </tr>
+                      {discount > 0 && (
+                        <tr>
+                          <td colSpan={3} className="py-2 text-right text-green-600">
+                            Remise 12 pour 11 :
+                          </td>
+                          <td className="py-2 text-right font-medium text-green-600">
+                            -{formatPrice(discount)}
+                          </td>
+                        </tr>
+                      )}
+                      {promoDiscount > 0 && (
+                        <tr>
+                          <td colSpan={3} className="py-2 text-right text-amber-600">
+                            Code promo {order.promo_code} :
+                          </td>
+                          <td className="py-2 text-right font-medium text-amber-600">
+                            -{formatPrice(promoDiscount)}
+                          </td>
+                        </tr>
+                      )}
+                      {deliveryFee > 0 && (
+                        <tr>
+                          <td colSpan={3} className="py-2 text-right text-gray-600">
+                            Frais de livraison :
+                          </td>
+                          <td className="py-2 text-right font-medium text-gray-900">
+                            {formatPrice(deliveryFee)}
+                          </td>
+                        </tr>
+                      )}
+                      <tr>
+                        <td colSpan={3} className="py-2 text-right text-lg font-semibold text-gray-900">
+                          Total :
+                        </td>
+                        <td className="py-2 text-right text-lg font-bold text-amber-600">
+                          {formatPrice(order.total_cents)}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {/* Mobile list */}
+                <div className="sm:hidden space-y-4">
+                  {items.map((item) => (
+                    <div key={item.id} className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="flex justify-between items-start mb-2">
+                        <p className="font-medium text-gray-900 flex-1">{item.product.name}</p>
+                        <p className="font-semibold text-gray-900 ml-2">
+                          {formatPrice(item.unit_price_cents * item.quantity)}
+                        </p>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>{item.quantity} × {formatPrice(item.unit_price_cents)}</span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Mobile summary */}
+                  <div className="pt-4 border-t-2 border-gray-300 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Sous-total</span>
+                      <span className="font-medium text-gray-900">{formatPrice(subtotal)}</span>
+                    </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600">Remise 12 pour 11</span>
+                        <span className="font-medium text-green-600">-{formatPrice(discount)}</span>
+                      </div>
                     )}
-                    <tr>
-                      <td colSpan={3} className="py-2 text-right text-lg font-semibold text-gray-900">
-                        Total :
-                      </td>
-                      <td className="py-2 text-right text-lg font-bold text-amber-600">
+                    {promoDiscount > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-amber-600">Code promo {order.promo_code}</span>
+                        <span className="font-medium text-amber-600">-{formatPrice(promoDiscount)}</span>
+                      </div>
+                    )}
+                    {deliveryFee > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Frais de livraison</span>
+                        <span className="font-medium text-gray-900">{formatPrice(deliveryFee)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-200">
+                      <span className="text-lg font-semibold text-gray-900">Total</span>
+                      <span className="text-xl font-bold text-amber-600">
                         {formatPrice(order.total_cents)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -461,10 +502,10 @@ export default async function ConfirmationPage({
 
             {/* Footer Info */}
             <div className="pt-6 border-t border-gray-200 text-center">
-              <p className="text-sm text-gray-500 mb-2">
+              <p className="text-sm text-gray-500 mb-4">
                 Commande créée le {formatDateTime(order.created_at)}
               </p>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 mb-6">
                 Des questions ? Contactez-nous à{' '}
                 <a
                   href="mailto:contact@pionniers-ecaussinnes.be"
@@ -473,18 +514,11 @@ export default async function ConfirmationPage({
                   contact@pionniers-ecaussinnes.be
                 </a>
               </p>
-            </div>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 pt-4">
-              <Link href="/" className="flex-1">
-                <Button variant="secondary" className="w-full">
+              {/* Single return button */}
+              <Link href="/">
+                <Button className="bg-amber-600 hover:bg-amber-700">
                   Retour à l'accueil
-                </Button>
-              </Link>
-              <Link href={`/event/${event.slug}`} className="flex-1">
-                <Button className="w-full bg-amber-600 hover:bg-amber-700">
-                  Voir l'événement
                 </Button>
               </Link>
             </div>

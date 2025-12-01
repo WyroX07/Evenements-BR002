@@ -114,20 +114,23 @@ export function generateOrderConfirmationHTML(data: OrderConfirmationData): stri
             </td>
           </tr>
 
-          ${data.qrCodeDataUrl ? `
-          <!-- QR Code -->
+          <!-- QR Code Info -->
           <tr>
             <td style="padding: 0 40px 30px;">
               <div style="background-color: #f0f9ff; border: 2px solid #0284c7; border-radius: 12px; padding: 24px; text-align: center;">
-                <p style="margin: 0 0 16px; font-size: 14px; color: #075985; font-weight: 600;">📱 PRÉSENTEZ CE QR CODE</p>
-                <img src="${data.qrCodeDataUrl}" alt="QR Code commande" style="width: 200px; height: 200px; margin: 0 auto; display: block; border-radius: 8px;" />
-                <p style="margin: 16px 0 0; font-size: 13px; color: #075985;">
-                  ${data.deliveryType === 'PICKUP' ? 'Présentez ce QR code lors du retrait de votre commande' : data.deliveryType === 'DELIVERY' ? 'Présentez ce QR code lors de la livraison' : 'Présentez ce QR code sur place'}
+                <p style="margin: 0 0 16px; font-size: 14px; color: #075985; font-weight: 600;">📱 QR CODE DE ${data.deliveryType === 'PICKUP' ? 'RETRAIT' : data.deliveryType === 'DELIVERY' ? 'LIVRAISON' : 'PRÉSENCE'}</p>
+                <p style="margin: 0 0 20px; font-size: 14px; color: #075985;">
+                  ${data.deliveryType === 'PICKUP' ? 'Présentez votre QR code lors du retrait de votre commande' : data.deliveryType === 'DELIVERY' ? 'Présentez votre QR code lors de la livraison' : 'Présentez votre QR code sur place'}
+                </p>
+                <a href="${data.confirmationUrl}" style="display: inline-block; background-color: #0284c7; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600;">
+                  Voir mon QR code
+                </a>
+                <p style="margin: 16px 0 0; font-size: 12px; color: #64748b;">
+                  Cliquez sur le bouton ci-dessus pour afficher votre QR code
                 </p>
               </div>
             </td>
           </tr>
-          ` : ''}
 
           <!-- Event Info -->
           <tr>

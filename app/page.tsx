@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Calendar, MapPin, ShoppingBag, Sparkles } from 'lucide-react'
+import { Calendar, MapPin, ShoppingBag } from 'lucide-react'
 import AdminLoginModal from '@/components/layout/AdminLoginModal'
 
 interface Section {
@@ -25,10 +25,6 @@ interface Event {
   stats: {
     ordersCount: number
   }
-}
-
-interface EventsResponse {
-  events: Event[]
 }
 
 function getEventTypeLabel(type: string): string {
@@ -143,11 +139,11 @@ export default function HomePage() {
           </div>
 
           {/* Main Content - Pushed down more */}
-          <div className="relative z-10 flex-1 flex flex-col items-center justify-end px-6 pb-20 pt-16">
+          <div className="relative z-10 flex flex-col items-center justify-end px-6 pt-40">
             {/* Baseline - Font identitaire avec espacement réduit */}
-            <h1 className="opacity-0 animate-fade-in animation-delay-300 text-6xl font-black text-white text-center leading-[1.0] tracking-tight mb-6">
-              Faites vivre<br /><span className="text-amber-300">l'unité</span> & rassemblez<br />
-              <span className="text-amber-300">Ecaussinnes</span>
+            <h1 className="opacity-0 animate-fade-in animation-delay-300 text-[52px] font-black text-white text-center leading-[1.1] tracking-tight mb-6">
+              Faites vivre <span className="text-amber-300">l'unité</span> &<br />Rassemblez <br />
+              <span className="text-amber-300"> Ecaussinnes</span>
             </h1>
 
             {/* Explication rapide */}
@@ -160,21 +156,11 @@ export default function HomePage() {
               href="/event/cremant-pionniers-2025"
               className="animate-fade-in animation-delay-[600ms] group relative inline-flex items-center gap-2 px-7 py-3.5 bg-white text-[#003f5c] rounded-full font-bold text-base shadow-2xl hover:shadow-white/40 hover:scale-105 transition-all duration-300"
             >
-              <span>Réserver et commander</span>
+              <span>Commander et réserver</span>
               <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </Link>
-
-            {/* Scroll indicator at very bottom - Reste visible */}
-            <div className="opacity-0 animate-fade-in animation-delay-[000ms] mt-12 mb-4">
-              <p className="text-white/60 text-xs uppercase tracking-widest mb-2 text-center">Faites défiler</p>
-              <div className="flex justify-center">
-                <div className="w-6 h-10 border-2 border-white/30 rounded-full flex items-start justify-center p-1.5">
-                  <div className="w-1.5 h-1.5 bg-white/60 rounded-full animate-[scroll_1.5s_ease-in-out_infinite]"></div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
