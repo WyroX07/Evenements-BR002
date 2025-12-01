@@ -264,6 +264,16 @@ export default function EventTemplateCremant({
     setAutoPlayProgress(0)
   }
 
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayClick = () => {
+    if (videoRef.current) {
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-white to-green-50">
       {/* Hero Section - Elegant & Simple */}
@@ -724,19 +734,30 @@ export default function EventTemplateCremant({
             </p>
           </div>
 
-          {/* Video Section - Placeholder for future video */}
+          {/* Video Section */}
           <div className="max-w-4xl mx-auto mb-12 animate-scale-in">
             <div className="relative aspect-video bg-gradient-to-br from-emerald-900 to-amber-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-amber-200 hover:scale-105 transition-transform duration-300">
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+          
+              {/* Overlay avec le bouton Play (disparaît si isPlaying est true) */}
+              {!isPlaying && (
+                <div 
+                  onClick={handlePlayClick}
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center text-white bg-black/20 cursor-pointer"
+                >
                 <PlayCircle className="w-24 h-24 mb-4 text-amber-300 opacity-80 hover:opacity-100 transition-opacity" />
-                <p className="text-2xl font-bold mb-2">Vidéo à venir</p>
-                <p className="text-amber-100 text-sm">Rencontre avec la famille Lissner et découverte de leur savoir-faire</p>
-              </div>
-              {/* When video is ready, replace with:
-              <video controls className="w-full h-full object-cover">
-                <source src="/path-to-video.mp4" type="video/mp4" />
+                </div>
+              )}
+
+              {/* Lecteur Vidéo */}
+              <video 
+                ref={videoRef}
+                controls 
+                className="w-full h-full object-cover"
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+              >
+                <source src="../Lissner-video.mp4" type="video/mp4" />
               </video>
-              */}
             </div>
           </div>
 
