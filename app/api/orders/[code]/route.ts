@@ -96,11 +96,9 @@ export async function GET(
       })),
     }
 
-    // Generer le QR code avec URL vers la page admin de scan
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001'
-    const scanUrl = `${baseUrl}/admin/scan/${order.code}`
-
-    const qrCodeDataUrl = await QRCode.toDataURL(scanUrl, {
+    // Generer le QR code avec uniquement le code de commande
+    // L'admin scannera ce code qui sera automatiquement ajoute a /admin/scan/
+    const qrCodeDataUrl = await QRCode.toDataURL(order.code, {
       width: 300,
       margin: 2,
       color: {
