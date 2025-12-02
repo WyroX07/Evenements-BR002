@@ -1,5 +1,8 @@
+-- Fix stock management functions to handle unlimited stock (NULL)
+-- Products with stock = NULL should not be affected by increment/decrement operations
+
 -- Function to decrement product stock
--- Called when an order is confirmed (PENDING → PAID)
+-- Called when an order is created or reactivated
 CREATE OR REPLACE FUNCTION decrement_product_stock(
   product_id UUID,
   quantity INTEGER
@@ -35,10 +38,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Grant execute permissions to authenticated users
+-- Grant execute permissions remain the same
 GRANT EXECUTE ON FUNCTION decrement_product_stock(UUID, INTEGER) TO authenticated;
 GRANT EXECUTE ON FUNCTION increment_product_stock(UUID, INTEGER) TO authenticated;
-
--- Grant execute permissions to service role (for admin operations)
 GRANT EXECUTE ON FUNCTION decrement_product_stock(UUID, INTEGER) TO service_role;
 GRANT EXECUTE ON FUNCTION increment_product_stock(UUID, INTEGER) TO service_role;
