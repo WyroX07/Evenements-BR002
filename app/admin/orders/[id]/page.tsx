@@ -300,7 +300,7 @@ export default function AdminOrderDetailPage() {
               )}
               {order.discount_cents !== undefined && order.discount_cents > 0 && (
                 <div className="flex justify-between text-sm">
-                  <p className="text-green-600">Remise 12 pour 11</p>
+                  <p className="text-green-600">Promotion 12 bouteilles (10€)</p>
                   <p className="font-medium text-green-600">-{formatPrice(order.discount_cents)}</p>
                 </div>
               )}
@@ -538,7 +538,7 @@ export default function AdminOrderDetailPage() {
               )}
               {order.discount_cents !== undefined && order.discount_cents > 0 && (
                 <div className="flex justify-between items-center text-sm">
-                  <p className="text-green-600">Remise 12 pour 11</p>
+                  <p className="text-green-600">Promotion 12 bouteilles (10€)</p>
                   <p className="font-medium text-green-600">-{formatPrice(order.discount_cents)}</p>
                 </div>
               )}

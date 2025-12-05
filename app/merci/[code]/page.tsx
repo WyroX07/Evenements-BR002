@@ -335,7 +335,7 @@ export default async function ConfirmationPage({
                       {discount > 0 && (
                         <tr>
                           <td colSpan={3} className="py-2 text-right text-green-600">
-                            Remise 12 pour 11 :
+                            Promotion 12 bouteilles (10€) :
                           </td>
                           <td className="py-2 text-right font-medium text-green-600">
                             -{formatPrice(discount)}
@@ -398,7 +398,7 @@ export default async function ConfirmationPage({
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-sm">
-                        <span className="text-green-600">Remise 12 pour 11</span>
+                        <span className="text-green-600">Promotion 12 bouteilles (10€)</span>
                         <span className="font-medium text-green-600">-{formatPrice(discount)}</span>
                       </div>
                     )}

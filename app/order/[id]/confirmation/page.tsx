@@ -231,10 +231,10 @@ export default function OrderConfirmationPage() {
               </div>
             )}
 
-            {/* Discount 10 for 9 */}
+            {/* Discount 12 bottles */}
             {order.discount_cents !== undefined && order.discount_cents > 0 && (
               <div className="flex justify-between items-center text-green-600">
-                <span className="text-sm">Remise 12 pour 11</span>
+                <span className="text-sm">Promotion 12 bouteilles (10€)</span>
                 <span className="font-semibold">-{formatPrice(order.discount_cents)}</span>
               </div>
             )}

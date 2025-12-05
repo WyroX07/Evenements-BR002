@@ -1193,7 +1193,7 @@ export default function CommanderPage() {
 
                       {discount > 0 && (
                         <div className="flex justify-between text-sm text-green-600">
-                          <span>Remise 12 pour 11</span>
+                          <span>Promotion 12 bouteilles (10€)</span>
                           <span className="font-semibold">-{(discount / 100).toFixed(2)} €</span>
                         </div>
                       )}
@@ -1415,7 +1415,7 @@ export default function CommanderPage() {
 
                     {discount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>Remise 12 pour 11</span>
+                        <span>Promotion 12 bouteilles (10€)</span>
                         <span className="font-medium tabular-nums">-{(discount / 100).toFixed(2)}&nbsp;€</span>
                       </div>
                     )}

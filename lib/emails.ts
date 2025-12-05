@@ -173,7 +173,7 @@ export function generateOrderConfirmationHTML(data: OrderConfirmationData): stri
                   </tr>
                   ${data.discount && data.discount > 0 ? `
                   <tr>
-                    <td colspan="3" style="text-align: right; padding: 8px 0; font-size: 14px; color: #10b981;">Remise 12 pour 11 :</td>
+                    <td colspan="3" style="text-align: right; padding: 8px 0; font-size: 14px; color: #10b981;">Promotion 12 bouteilles (10€) :</td>
                     <td style="text-align: right; padding: 8px 0; font-size: 14px; font-weight: 600; color: #10b981;">-${formatPrice(data.discount)}</td>
                   </tr>
                   ` : ''}
@@ -292,18 +292,53 @@ export function generateOrderConfirmationHTML(data: OrderConfirmationData): stri
  */
 export async function sendOrderConfirmation(data: OrderConfirmationData) {
   const html = generateOrderConfirmationHTML(data)
+  const from = getSenderEmail()
+  const subject = `Confirmation de commande ${data.orderCode} - ${data.eventName}`
+
+  // Logging détaillé avant envoi
+  console.log('[sendOrderConfirmation] Début envoi email:', {
+    orderCode: data.orderCode,
+    to: data.customerEmail,
+    from,
+    eventName: data.eventName,
+    paymentMethod: data.paymentMethod,
+    totalCents: data.totalCents,
+  })
 
   try {
+    const startTime = Date.now()
+
     const response = await resend.emails.send({
-      from: getSenderEmail(),
+      from,
       to: data.customerEmail,
-      subject: `Confirmation de commande ${data.orderCode} - ${data.eventName}`,
+      subject,
       html,
+    })
+
+    const duration = Date.now() - startTime
+
+    // Logging du succès avec détails
+    console.log('[sendOrderConfirmation] ✅ Email envoyé avec succès:', {
+      orderCode: data.orderCode,
+      to: data.customerEmail,
+      emailId: response.id,
+      duration: `${duration}ms`,
     })
 
     return { success: true, response }
   } catch (error) {
-    console.error('Erreur envoi email:', error)
+    // Logging détaillé de l'erreur
+    console.error('[sendOrderConfirmation] ❌ Erreur envoi email:', {
+      orderCode: data.orderCode,
+      to: data.customerEmail,
+      from,
+      error: error instanceof Error ? {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      } : error,
+    })
+
     return { success: false, error }
   }
 }
