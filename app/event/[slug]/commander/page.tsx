@@ -728,7 +728,7 @@ export default function CommanderPage() {
 
                 {event.config.discount_10for9 && (
                   <div className="mt-6 p-4 bg-green-50 border-2 border-green-200 text-green-700 rounded-lg text-sm font-medium">
-                    Remise spéciale : 10 bouteilles pour le prix de 9 !
+                    Remise spéciale : 12 bouteilles achetées = 10€ de réduction sur la commande !
                   </div>
                 )}
               </div>
