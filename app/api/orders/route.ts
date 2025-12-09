@@ -397,10 +397,30 @@ export async function POST(request: NextRequest) {
     }
 
     // Envoyer l'email (de manière asynchrone sans bloquer la réponse)
-    sendOrderConfirmation(emailData).catch((error) => {
-      console.error('Erreur envoi email confirmation:', error)
-      // Ne pas bloquer la création de commande si l'email échoue
-    })
+    sendOrderConfirmation(emailData)
+      .then((result) => {
+        if (result.success) {
+          console.log('[POST /api/orders] ✅ Email confirmation envoyé:', {
+            orderCode: order.code,
+            emailId: result.response?.id,
+            to: emailData.customerEmail,
+          })
+        } else {
+          console.error('[POST /api/orders] ⚠️ Échec envoi email (commande créée):', {
+            orderCode: order.code,
+            to: emailData.customerEmail,
+            error: result.error,
+          })
+        }
+      })
+      .catch((error) => {
+        console.error('[POST /api/orders] ❌ Erreur critique envoi email:', {
+          orderCode: order.code,
+          to: emailData.customerEmail,
+          error: error instanceof Error ? error.message : String(error),
+        })
+        // Ne pas bloquer la création de commande si l'email échoue
+      })
 
     // 13. Retourner la commande
     console.log('[POST /api/orders] Order creation completed successfully')

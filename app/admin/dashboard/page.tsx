@@ -13,7 +13,8 @@ import {
   Eye
 } from 'lucide-react'
 import { useIsMobile } from '@/hooks/useIsMobile'
-import MobileDashboard from '@/components/admin/mobile/MobileDashboard'
+import MobileEventDashboard from '@/components/admin/mobile/MobileEventDashboard'
+import EventDashboard from '@/components/admin/EventDashboard'
 import AdminLayout from '@/components/admin/AdminLayout'
 
 interface Section {
@@ -109,7 +110,7 @@ export default function AdminDashboardPage() {
 
   // Mobile version
   if (isMobile) {
-    return <MobileDashboard onCreateEvent={() => router.push('/admin/events')} />
+    return <MobileEventDashboard events={events} />
   }
 
   // Desktop version
@@ -121,9 +122,9 @@ export default function AdminDashboardPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Vue d'ensemble</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
                 <p className="text-sm text-gray-600 mt-1">
-                  Statistiques globales de tous les événements
+                  Statistiques détaillées par événement
                 </p>
               </div>
             </div>
@@ -131,168 +132,13 @@ export default function AdminDashboardPage() {
         </header>
 
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Global Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Événements</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {globalStats.totalEvents}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {globalStats.activeEvents} actif{globalStats.activeEvents > 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003f5c]"></div>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Commandes</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {globalStats.totalOrders}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Toutes sections
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <ShoppingBag className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Revenus</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {formatPrice(globalStats.totalRevenue)}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Total généré
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-purple-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Moyenne / Event</p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {events.length > 0 ? formatPrice(globalStats.totalRevenue / events.length) : '0 €'}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Revenu moyen
-                  </p>
-                </div>
-                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <BarChart3 className="w-6 h-6 text-amber-600" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Events */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Événements récents</h2>
-                <Link
-                  href="/admin/events"
-                  className="text-sm font-medium text-[#003f5c] hover:text-[#2f6690] flex items-center gap-1"
-                >
-                  Voir tous
-                  <ArrowUpRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            {isLoading ? (
-              <div className="p-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#003f5c] mx-auto"></div>
-              </div>
-            ) : recentEvents.length === 0 ? (
-              <div className="p-12 text-center">
-                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Aucun événement
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Commencez par créer votre premier événement
-                </p>
-                <Link
-                  href="/admin/events"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#003f5c] text-white rounded-lg hover:bg-[#2f6690] transition-colors"
-                >
-                  Gérer les événements
-                  <ArrowUpRight className="w-4 h-4" />
-                </Link>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-200">
-                {recentEvents.map((event) => {
-                  const statusBadge = getStatusBadge(event.status)
-                  return (
-                    <Link
-                      key={event.id}
-                      href={`/admin/events/${event.id}`}
-                      className="block p-6 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        {/* Color indicator */}
-                        <div
-                          className="w-1 h-16 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: event.section.color }}
-                        />
-
-                        {/* Event info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-base font-semibold text-gray-900 truncate">
-                              {event.name}
-                            </h3>
-                            <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadge.color} flex-shrink-0`}>
-                              {statusBadge.label}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <span>{event.section.name}</span>
-                            <span>•</span>
-                            <span>{formatDate(event.start_date)} → {formatDate(event.end_date)}</span>
-                          </div>
-                        </div>
-
-                        {/* Stats */}
-                        <div className="hidden md:flex items-center gap-8 flex-shrink-0">
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-gray-900">{event.stats.ordersCount}</div>
-                            <div className="text-xs text-gray-500">Commandes</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-green-600">{formatPrice(event.stats.totalRevenueCents)}</div>
-                            <div className="text-xs text-gray-500">Revenus</div>
-                          </div>
-                        </div>
-
-                        {/* Arrow */}
-                        <ArrowUpRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                      </div>
-                    </Link>
-                  )
-                })}
-              </div>
-            )}
-          </div>
+          ) : (
+            <EventDashboard events={events} />
+          )}
 
           {/* Quick Actions */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
