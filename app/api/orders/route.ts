@@ -218,17 +218,30 @@ export async function POST(request: NextRequest) {
     const promoDiscountCents = promoCodeData ? promoCodeData.discountCents : 0
     const finalTotal = Math.max(0, totals.totalCents - promoDiscountCents)
 
-    // 8. Générer le code de commande
+    // 8. Générer le code de commande unique
     const year = new Date().getFullYear()
     const prefix = config.order_code_prefix || 'ORD'
 
-    // Compter les commandes de cet événement pour le numéro
-    const { count: eventOrderCount } = await supabase
+    // Trouver le dernier numéro utilisé pour cet événement et cette année
+    const codePattern = `${prefix}-${year}-%`
+    const { data: lastOrder } = await supabase
       .from('orders')
-      .select('*', { count: 'exact', head: true })
+      .select('code')
       .eq('event_id', event.id)
+      .ilike('code', codePattern)
+      .order('code', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-    const orderNumber = (eventOrderCount || 0) + 1
+    let orderNumber = 1
+    if (lastOrder?.code) {
+      // Extraire le numéro du dernier code (ex: "CRE-2025-00007" -> 7)
+      const match = lastOrder.code.match(/-(\d+)$/)
+      if (match) {
+        orderNumber = parseInt(match[1], 10) + 1
+      }
+    }
+
     const orderCode = `${prefix}-${year}-${orderNumber.toString().padStart(5, '0')}`
 
     // 9. Générer la communication de virement
