@@ -633,7 +633,7 @@ export default function CommanderPage() {
 
       // Redirect to confirmation page
       addToast('Commande passée avec succès !', 'success')
-      router.push(`/merci/${result.order.code}`)
+      router.push(`/commande/${result.order.code}`)
     } catch (error) {
       console.error('Error submitting order:', error)
       addToast('Erreur lors de la commande', 'error')

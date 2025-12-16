@@ -353,7 +353,7 @@ export default function MobileCommander() {
       localStorage.removeItem(`cart_${slug}`)
 
       addToast('Commande confirmée !', 'success')
-      router.push(`/merci/${data.order.code}`)
+      router.push(`/commande/${data.order.code}`)
     } catch (error) {
       console.error('Error submitting order:', error)
       addToast(error instanceof Error ? error.message : 'Erreur lors de la soumission de la commande', 'error')
