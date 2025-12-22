@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2, Truck, MapPin, Home, Calendar, Clock, User, CreditCard, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useToast } from '@/contexts/ToastContext'
+import { calculate12for11Discount } from '@/lib/calculations'
 
 // Components
 import MobileStepIndicator, { defaultMobileSteps, MobileStep } from './components/MobileStepIndicator'
@@ -395,15 +396,15 @@ export default function MobileCommander() {
       }, 0)
     : 0
 
-  // Calculate discount (10 for 9 if enabled)
+  // Calculate discount (12 for 10€ if enabled)
   let discountCents = 0
-  if (event?.config.discount_10for9 && totalItems >= 10) {
-    const freeBottles = Math.floor(totalItems / 10)
-    if (freeBottles > 0 && subtotalCents > 0) {
-      const avgPrice = subtotalCents / totalItems
-      const rawDiscount = freeBottles * avgPrice
-      discountCents = Math.round(rawDiscount / 100) * 100
-    }
+  if (event?.config.discount_10for9) {
+    const items = Object.entries(cart).map(([productId, qty]) => ({
+      cuveeId: productId,
+      qty,
+      unitPriceCents: event.products.find(p => p.id === productId)?.price_cents || 0,
+    }))
+    discountCents = calculate12for11Discount(items)
   }
 
   const deliveryFeeCents = formData.deliveryType === 'DELIVERY' && event ? event.config.delivery_fee_cents : 0
@@ -1034,7 +1035,7 @@ export default function MobileCommander() {
 
                 {discountCents > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
-                    <span>Remise 10 pour 9</span>
+                    <span>Promotion 12 bouteilles (10€)</span>
                     <span className="font-semibold">-{formatPrice(discountCents)}</span>
                   </div>
                 )}
