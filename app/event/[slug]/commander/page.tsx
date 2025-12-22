@@ -16,6 +16,7 @@ import { useDeviceDetection } from './hooks/useDeviceDetection'
 import MobileCommander from './MobileCommander'
 import ProductDetailsModal from './components/ProductDetailsModal'
 import MobileProductCard from './components/MobileProductCard'
+import { calculate12for11Discount } from '@/lib/calculations'
 
 // Helper function to get allergen label in French
 const getAllergenLabel = (allergenCode: string): string => {
@@ -539,15 +540,12 @@ export default function CommanderPage() {
 
     let discount = 0
     if (event.config.discount_10for9) {
-      const totalQty = Object.values(cart).reduce((sum, qty) => sum + qty, 0)
-      const freeBottles = Math.floor(totalQty / 10)
-      if (freeBottles > 0 && subtotal > 0) {
-        // Calculate discount based on average price and round to nearest 100 cents (1 euro)
-        const avgPrice = subtotal / totalQty
-        const rawDiscount = freeBottles * avgPrice
-        // Round to nearest euro (100 cents)
-        discount = Math.round(rawDiscount / 100) * 100
-      }
+      const items = Object.entries(cart).map(([productId, qty]) => ({
+        cuveeId: productId,
+        qty,
+        unitPriceCents: event.products.find(p => p.id === productId)?.price_cents || 0,
+      }))
+      discount = calculate12for11Discount(items)
     }
 
     const deliveryFee =
